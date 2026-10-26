@@ -1,147 +1,314 @@
-import type { Types, Instrument, Category, CatalogFilter, ContactMessage, FormError } from '@/types';
+import type { Availability, Category, ContactMessage, Instrument } from '@/types';
+
+export const categories: Category[] = ['String', 'Percussion', 'Wind', 'Keyboard', 'Electronic', 'Accessories'];
+
+export const editorialContent = {
+  heroTitle: 'Crafted sound for modern stages and intimate rooms.',
+  heroSubtitle:
+    'SurSangeet curates expressive instruments with tactile finishes, balanced tonal character, and a gallery-first presentation built for discovery.',
+  heroCta: 'Explore Collection',
+  story:
+    'From hand-finished strings to precision electronic tools, each piece is selected for visual presence, musical depth, and dependable performance.',
+};
 
 const instruments: Instrument[] = [
   {
-    id: 'inst-001',
-    slug: 'sitar-heritage',
-    name: 'Sitar Heritage',
+    id: 'ins-001',
+    slug: 'raga-heritage-acoustic-guitar',
+    name: 'Raga Heritage Acoustic Guitar',
     category: 'String',
-    price: 24999,
-    availability: 'available',
-    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=85',
-    accent: 'red',
-    description: 'A resonant sitar with a luminous upper register and a hand-finished gourd body.',
-    origin: 'Jaipur, India',
-    materials: ['Tuned teak neck', 'Pumpkin gourd', 'Brass frets'],
-    featured: true,
-  },
-  {
-    id: 'inst-002',
-    slug: 'bansuri-dawn',
-    name: 'Bansuri Dawn',
-    category: 'Wind',
-    price: 8999,
-    availability: 'limited',
-    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1400&q=85',
-    accent: 'blue',
-    description: 'A concert bansuri with a breathy, meditative tone and balanced finger spacing.',
-    origin: 'Varanasi, India',
-    materials: ['Seasoned bamboo', 'Natural oil finish', 'Thread binding'],
-  },
-  {
-    id: 'inst-003',
-    slug: 'tabla-echo',
-    name: 'Tabla Echo',
-    category: 'Percussion',
-    price: 15999,
-    availability: 'available',
-    image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1400&q=85',
-    accent: 'green',
-    description: 'A paired tabla set tuned for crisp dayan articulation and deep bayan bloom.',
-    origin: 'Delhi, India',
-    materials: ['Sheesham wood', 'Goat skin heads', 'Cotton rings'],
-    featured: true,
-  },
-  {
-    id: 'inst-004',
-    slug: 'harmonium-atelier',
-    name: 'Harmonium Atelier',
-    category: 'Keyboard',
-    price: 32999,
-    availability: 'limited',
-    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80',
-    accent: 'red',
-    description: 'A compact reed instrument with a warm drone and a refined bellows response.',
-    origin: 'Kolkata, India',
-    materials: ['Solid wood case', 'Brass reeds', 'Leather bellows'],
-  },
-  {
-    id: 'inst-005',
-    slug: 'tanpura-studio',
-    name: 'Tanpura Studio',
-    category: 'String',
+    family: 'Acoustic Guitar',
     price: 18999,
-    availability: 'sold-out',
-    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80',
-    accent: 'green',
-    description: 'A drone instrument with a velvet sustain and a sculptural, gallery-grade silhouette.',
-    origin: 'Mysuru, India',
-    materials: ['Seasoned wood', 'Polished bridge', 'Hand-tied strings'],
+    availability: 'In Stock',
+    description:
+      'A resonant dreadnought with a warm, open voice and a satin neck that feels immediate in the hand. The spruce top is voiced for clarity, while the mahogany back and sides add a rounded low end that suits fingerstyle, strumming, and studio layering alike.\n\nBuilt for players who want a refined everyday instrument, it balances projection with comfort and carries a polished, stage-ready silhouette without losing its handmade character.',
+    shortDescription: 'Warm projection, satin neck, and a balanced voice for daily playing.',
+    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=85',
+    gallery: [
+      'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+    ],
+    accent: 'red',
+    featured: true,
+    newArrival: true,
+    tags: ['Hand-finished', 'Studio-ready', 'Warm tone'],
+    materials: ['Spruce top', 'Mahogany back', 'Rosewood fingerboard'],
+    dimensions: '41 in body length',
+    origin: 'Made in India',
   },
   {
-    id: 'inst-006',
-    slug: 'ghatam-ritual',
-    name: 'Ghatam Ritual',
+    id: 'ins-002',
+    slug: 'monsoon-tabla-pair',
+    name: 'Monsoon Tabla Pair',
     category: 'Percussion',
-    price: 11999,
-    availability: 'available',
-    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+    family: 'Tabla',
+    price: 24999,
+    availability: 'Limited',
+    description:
+      'A tuned tabla pair with crisp dayan articulation and a deep, rounded bayan response. The heads are selected for stable pitch and the shell finish preserves the tactile warmth expected from a performance-grade set.\n\nIdeal for classical practice, recording sessions, and live accompaniment, this pair offers a responsive attack with a controlled sustain that sits beautifully in ensemble settings.',
+    shortDescription: 'Responsive attack with a deep, controlled bayan voice.',
+    image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1400&q=85',
+    gallery: [
+      'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80',
+    ],
+    accent: 'green',
+    featured: true,
+    tags: ['Classical', 'Performance set', 'Tuned heads'],
+    materials: ['Wood shell', 'Natural skin heads', 'Cotton rings'],
+    dimensions: 'Standard concert pair',
+    origin: 'Made in Uttar Pradesh',
+  },
+  {
+    id: 'ins-003',
+    slug: 'saffron-sitar-studio',
+    name: 'Saffron Sitar Studio',
+    category: 'String',
+    family: 'Sitar',
+    price: 45999,
+    availability: 'Preorder',
+    description:
+      'An elegant sitar with a luminous upper register and a richly textured sympathetic resonance. The long neck and carefully set bridges support nuanced meend work while maintaining a stable, expressive response across the scale.\n\nDesigned for serious students and recording artists, it pairs traditional craftsmanship with a clean, contemporary finish that photographs beautifully and performs with authority.',
+    shortDescription: 'Luminous resonance with expressive meend and stable tuning.',
+    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=85',
+    ],
     accent: 'blue',
-    description: 'A clay percussion vessel with a dry, articulate attack and rich tonal overtones.',
-    origin: 'Chennai, India',
-    materials: ['Fired clay', 'Mineral polish', 'Natural pigments'],
+    newArrival: true,
+    tags: ['Sympathetic strings', 'Recording', 'Classical'],
+    materials: ['Tuned wood body', 'Metal strings', 'Bone bridge'],
+    dimensions: 'Approx. 48 in length',
+    origin: 'Made in Kolkata',
+  },
+  {
+    id: 'ins-004',
+    slug: 'midnight-djembe',
+    name: 'Midnight Djembe',
+    category: 'Percussion',
+    family: 'Djembe',
+    price: 13999,
+    availability: 'In Stock',
+    description:
+      'A hand-carved djembe with a punchy center tone and a bright slap that cuts through acoustic ensembles. The shell is shaped for comfort and the head tension is set for a lively, immediate response.\n\nIts compact profile makes it easy to transport, while the finish keeps the grain visible and tactile for a more intimate playing experience.',
+    shortDescription: 'Punchy center tone with a bright, articulate slap.',
+    image: 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80',
+    ],
+    accent: 'red',
+    tags: ['Hand-carved', 'Portable', 'Acoustic'],
+    materials: ['Hardwood shell', 'Goat skin head', 'Rope tuning'],
+    dimensions: '14 in head diameter',
+    origin: 'Made in West Africa',
+  },
+  {
+    id: 'ins-005',
+    slug: 'aranya-bansuri',
+    name: 'Aranya Bansuri',
+    category: 'Wind',
+    family: 'Bansuri',
+    price: 7999,
+    availability: 'In Stock',
+    description:
+      'A bamboo bansuri with a clear, breathy top end and a centered lower register. The embouchure is cut for easy response, making it suitable for both focused practice and expressive performance.\n\nThe natural finish preserves the organic feel of the instrument, while the tuning remains stable enough for ensemble work and studio capture.',
+    shortDescription: 'Breathy top end and a centered lower register.',
+    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1400&q=85',
+    ],
+    accent: 'green',
+    featured: true,
+    tags: ['Bamboo', 'Classical wind', 'Studio'],
+    materials: ['Bamboo', 'Natural binding'],
+    dimensions: '22 in length',
+    origin: 'Made in Assam',
+  },
+  {
+    id: 'ins-006',
+    slug: 'nocturne-digital-piano',
+    name: 'Nocturne Digital Piano',
+    category: 'Keyboard',
+    family: 'Digital Piano',
+    price: 52999,
+    availability: 'Limited',
+    description:
+      'A slim digital piano with weighted action and a refined cabinet profile that suits modern interiors. The keybed offers a convincing acoustic feel, while the onboard voices are tuned for clarity and depth.\n\nIt is equally at home in a practice room, a living space, or a compact studio, delivering a polished playing experience without visual excess.',
+    shortDescription: 'Weighted action and a refined cabinet for modern spaces.',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+    ],
+    accent: 'blue',
+    featured: true,
+    tags: ['Weighted keys', 'Home studio', 'Compact'],
+    materials: ['Composite cabinet', 'Weighted keybed'],
+    dimensions: '88-key full size',
+    origin: 'Made in Japan',
+  },
+  {
+    id: 'ins-007',
+    slug: 'signal-analog-synth',
+    name: 'Signal Analog Synth',
+    category: 'Electronic',
+    family: 'Synthesizer',
+    price: 68999,
+    availability: 'Preorder',
+    description:
+      'A tactile analog synthesizer with a hands-on control surface and a wide tonal palette. The oscillators are bold and immediate, while the filter section shapes everything from glassy leads to thick, cinematic drones.\n\nBuilt for sound designers and performers, it rewards experimentation with a layout that feels intuitive from the first session.',
+    shortDescription: 'Hands-on control surface with a wide tonal palette.',
+    image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+    ],
+    accent: 'red',
+    newArrival: true,
+    tags: ['Analog', 'Sound design', 'Performance'],
+    materials: ['Metal chassis', 'Precision knobs'],
+    dimensions: 'Desktop format',
+    origin: 'Made in Germany',
+  },
+  {
+    id: 'ins-008',
+    slug: 'atelier-violin',
+    name: 'Atelier Violin',
+    category: 'String',
+    family: 'Violin',
+    price: 21999,
+    availability: 'In Stock',
+    description:
+      'A responsive violin with a singing upper register and a focused core that supports both solo phrasing and ensemble blend. The setup is optimized for clean articulation and comfortable left-hand movement.\n\nIts varnish has a warm, understated glow, giving the instrument a classic presence without overpowering the player or the stage.',
+    shortDescription: 'Singing upper register with a focused, articulate core.',
+    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1400&q=85',
+    ],
+    accent: 'green',
+    tags: ['Orchestral', 'Studio', 'Expressive'],
+    materials: ['Maple back', 'Spruce top', 'Ebony fittings'],
+    dimensions: '4/4 full size',
+    origin: 'Made in Romania',
+  },
+  {
+    id: 'ins-009',
+    slug: 'rhythm-cajon',
+    name: 'Rhythm Cajon',
+    category: 'Percussion',
+    family: 'Cajon',
+    price: 8999,
+    availability: 'In Stock',
+    description:
+      'A compact cajon with a crisp snare response and a deep bass pocket that works well in unplugged sets. The front plate is tuned for a lively attack, while the body keeps the low end controlled and musical.\n\nIt is lightweight, durable, and easy to integrate into acoustic sessions, street performances, and small venues.',
+    shortDescription: 'Crisp snare response with a deep, controlled bass pocket.',
+    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1400&q=85',
+    ],
+    accent: 'blue',
+    featured: true,
+    tags: ['Acoustic', 'Portable', 'Snare'],
+    materials: ['Birch body', 'Plywood front plate'],
+    dimensions: 'Standard cajon size',
+    origin: 'Made in Peru',
+  },
+  {
+    id: 'ins-010',
+    slug: 'studio-condenser-mic',
+    name: 'Studio Condenser Mic',
+    category: 'Accessories',
+    family: 'Microphone',
+    price: 15999,
+    availability: 'Limited',
+    description:
+      'A large-diaphragm condenser microphone with a smooth top end and a detailed midrange that flatters vocals and acoustic instruments. The capsule is voiced for clarity without harshness, making it a versatile studio companion.\n\nIts metal body and shock-mount-ready design make it a dependable choice for home studios and professional tracking rooms alike.',
+    shortDescription: 'Smooth top end and a detailed midrange for studio capture.',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+    ],
+    accent: 'red',
+    tags: ['Recording', 'Vocal', 'Accessory'],
+    materials: ['Metal housing', 'Condenser capsule'],
+    dimensions: 'Standard large diaphragm',
+    origin: 'Made in South Korea',
+  },
+  {
+    id: 'ins-011',
+    slug: 'artisan-ukulele',
+    name: 'Artisan Ukulele',
+    category: 'String',
+    family: 'Ukulele',
+    price: 6499,
+    availability: 'In Stock',
+    description:
+      'A bright, cheerful ukulele with a quick attack and a compact body that feels effortless in the lap. The tone is lively without becoming brittle, making it a friendly instrument for beginners and a useful sketchpad for songwriters.\n\nThe finish is smooth and understated, with a clean silhouette that keeps the focus on the wood grain and the sound.',
+    shortDescription: 'Bright, quick attack with a compact and comfortable body.',
+    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1400&q=85',
+    gallery: [
+      'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80',
+    ],
+    accent: 'green',
+    newArrival: true,
+    tags: ['Beginner-friendly', 'Compact', 'Songwriting'],
+    materials: ['Laminate top', 'Nato neck'],
+    dimensions: 'Concert size',
+    origin: 'Made in Indonesia',
+  },
+  {
+    id: 'ins-012',
+    slug: 'stage-wireless-system',
+    name: 'Stage Wireless System',
+    category: 'Accessories',
+    family: 'Wireless Audio',
+    price: 27999,
+    availability: 'Out of Stock',
+    description:
+      'A reliable wireless system designed for clean stage mobility and stable signal transmission. The interface is minimal and the pairing process is straightforward, allowing performers to focus on the set rather than the setup.\n\nWith a compact footprint and a robust build, it is suited to rehearsals, live venues, and mobile performance rigs where consistency matters most.',
+    shortDescription: 'Stable signal transmission with a compact stage-ready footprint.',
+    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+    ],
+    accent: 'blue',
+    tags: ['Wireless', 'Live', 'Reliable'],
+    materials: ['Metal receiver', 'Polymer transmitter'],
+    dimensions: 'Dual-channel system',
+    origin: 'Made in Taiwan',
   },
 ];
 
-const categories: Category[] = ['String', 'Wind', 'Percussion', 'Keyboard', 'Accessories'];
-
-const filters: CatalogFilter = {
-  category: 'All',
-  availability: 'All',
-  search: '',
-};
-
-const contactMessage: ContactMessage = {
-  name: '',
-  email: '',
-  subject: '',
-  message: '',
-};
-
-const formErrors: FormError[] = [];
-
-const featuredContent = {
-  headline: 'A curated instrument wardrobe for modern listeners and serious players.',
-  subheadline:
-    'SurSangeet pairs heritage craftsmanship with a restrained editorial lens, presenting each instrument as an object of sound, form, and lineage.',
-  ctaLabel: 'Explore Collection',
-  ctaHref: '/catalog',
-};
-
-const storeStory = {
-  title: 'The SurSangeet Edit',
-  body:
-    'We source instruments for tonal character, material honesty, and visual presence. Every piece is selected to feel at home in a performance room, a studio, or a quiet interior.',
-};
-
-const timeline = [
-  { id: 'timeline-1', year: '2018', title: 'First curation', description: 'A small private archive of hand-selected instruments begins.' },
-  { id: 'timeline-2', year: '2020', title: 'Studio expansion', description: 'The collection grows to include wind, percussion, and keyboard voices.' },
-  { id: 'timeline-3', year: '2024', title: 'Editorial launch', description: 'SurSangeet opens as a digital showcase with a refined, gallery-like presentation.' },
-];
-
-const locations = [
-  { id: 'loc-1', city: 'Jaipur', country: 'India', label: 'Workshop and restoration' },
-  { id: 'loc-2', city: 'Kolkata', country: 'India', label: 'Reed instrument atelier' },
-  { id: 'loc-3', city: 'Chennai', country: 'India', label: 'Percussion curation desk' },
-];
-
-const mockData: Types & {
-  featuredContent: typeof featuredContent;
-  storeStory: typeof storeStory;
-  timeline: typeof timeline;
-  locations: typeof locations;
-} = {
-  instruments,
+export const mockData = {
   categories,
-  filters,
-  contactMessage,
-  formErrors,
-  featuredContent,
-  storeStory,
-  timeline,
-  locations,
+  editorialContent,
+  instruments,
+  contactDefaults: {
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  } satisfies ContactMessage,
 };
 
-export { instruments, categories, filters, contactMessage, formErrors, featuredContent, storeStory, timeline, locations, mockData };
 export default mockData;

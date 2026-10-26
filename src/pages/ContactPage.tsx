@@ -1,115 +1,61 @@
-import { motion } from 'framer-motion';
-import { Clock, Globe2, Mail, MapPin, Phone } from 'lucide-react';
-import ContactExperience from '@/components/ContactExperience';
-import { locations } from '@/data/mockData';
+import { Mail, MapPin, Phone, Clock, Sparkles } from 'lucide-react';
+import ContactForm from '@/components/ContactForm';
 
 export function ContactPage() {
-  const primaryLocation = locations?.[0] ?? {
-    name: 'SurSangeet Atelier',
-    address: 'New Delhi, India',
-    phone: '+91 98765 43210',
-    email: 'hello@sursangeet.com',
-    hours: 'Mon–Sat · 10:00–19:00',
-    mapImage: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=85',
-  };
+  const contactPoints = [
+    { icon: Mail, label: 'Email', value: 'hello@sursangeet.in', href: 'mailto:hello@sursangeet.in' },
+    { icon: Phone, label: 'Phone', value: '+91 98765 43210', href: 'tel:+919876543210' },
+    { icon: MapPin, label: 'Studio', value: 'Bengaluru, India', href: 'https://maps.google.com/?q=Bengaluru,India' },
+    { icon: Clock, label: 'Hours', value: 'Mon–Sat · 10:00–19:00', href: undefined },
+  ];
 
   return (
-    <main className="bg-white text-[#17191C]">
-      <section className="mx-auto grid min-h-screen max-w-7xl gap-10 px-4 py-8 md:grid-cols-[1.05fr_0.95fr] md:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="flex flex-col justify-between rounded-[10px] border border-[#D7DCE2] bg-white p-6 md:p-8"
-        >
-          <div className="space-y-8">
+    <main className="bg-white text-[#18222C]">
+      <section className="border-b border-[#D7DDE3]">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-24">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 border border-[#D7DDE3] bg-[#F5F5F5] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#5F6B76]">
+              <Sparkles className="h-4 w-4 text-[#D32F2F]" />
+              Contact SurSangeet
+            </div>
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#5E6670]">Contact</p>
-              <h1 className="max-w-xl font-['Playfair_Display'] text-5xl font-light tracking-tight md:text-6xl">
-                Speak with the atelier.
+              <h1 className="max-w-2xl font-[Outfit,sans-serif] text-5xl font-light tracking-tight md:text-6xl">
+                Reach the studio for guidance, sourcing, and tailored instrument recommendations.
               </h1>
-              <p className="max-w-lg text-sm leading-7 text-[#5E6670] md:text-base">
-                For bespoke sourcing, instrument guidance, or private appointments, send a note and our team will respond with care.
+              <p className="max-w-xl text-base leading-7 text-[#5F6B76] md:text-lg">
+                Whether you are comparing tonal character, checking availability, or planning a curated setup, our team responds with precise, human support.
               </p>
             </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[10px] border border-[#D7DCE2] bg-[#F5F5F5] p-4">
-                <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">
-                  <Phone className="h-4 w-4 text-[#D32F2F]" />
-                  Call
-                </div>
-                <a className="text-sm font-medium text-[#17191C] transition-colors hover:text-[#D32F2F]" href={`tel:${primaryLocation?.phone ?? ''}`}>
-                  {primaryLocation?.phone ?? '+91 98765 43210'}
-                </a>
-              </div>
-              <div className="rounded-[10px] border border-[#D7DCE2] bg-[#F5F5F5] p-4">
-                <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">
-                  <Mail className="h-4 w-4 text-[#D32F2F]" />
-                  Email
-                </div>
-                <a className="text-sm font-medium text-[#17191C] transition-colors hover:text-[#D32F2F]" href={`mailto:${primaryLocation?.email ?? 'hello@sursangeet.com'}`}>
-                  {primaryLocation?.email ?? 'hello@sursangeet.com'}
-                </a>
-              </div>
-            </div>
-
-            <div className="grid gap-4 border-t border-[#D7DCE2] pt-6 sm:grid-cols-3">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">
-                  <MapPin className="h-4 w-4 text-[#D32F2F]" />
-                  Visit
-                </div>
-                <p className="text-sm leading-6 text-[#17191C]">{primaryLocation?.address ?? 'New Delhi, India'}</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">
-                  <Clock className="h-4 w-4 text-[#D32F2F]" />
-                  Hours
-                </div>
-                <p className="text-sm leading-6 text-[#17191C]">{primaryLocation?.hours ?? 'Mon–Sat · 10:00–19:00'}</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">
-                  <Globe2 className="h-4 w-4 text-[#D32F2F]" />
-                  Reach
-                </div>
-                <p className="text-sm leading-6 text-[#17191C]">Private appointments and remote consultations available.</p>
-              </div>
-            </div>
           </div>
 
-          <div className="mt-10 border-t border-[#D7DCE2] pt-6">
-            <p className="max-w-lg text-xs uppercase tracking-[0.24em] text-[#5E6670]">
-              Curated instruments, thoughtful guidance, and direct access to the collection.
-            </p>
+          <div className="grid gap-3 self-end rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] p-5">
+            {contactPoints.map((point) => {
+              const Icon = point.icon;
+              const content = (
+                <div className="flex items-start gap-4 rounded-[12px] border border-[#D7DDE3] bg-white p-4 transition-transform duration-300 hover:-translate-y-0.5">
+                  <div className="flex h-10 w-10 items-center justify-center border border-[#D7DDE3] bg-[#F5F5F5] text-[#D32F2F]">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5F6B76]">{point.label}</div>
+                    <div className="text-sm font-medium text-[#18222C]">{point.value}</div>
+                  </div>
+                </div>
+              );
+              return point.href ? (
+                <a key={point.label} href={point.href} className="block focus:outline-none focus:ring-2 focus:ring-[#D32F2F] focus:ring-offset-2">
+                  {content}
+                </a>
+              ) : (
+                <div key={point.label}>{content}</div>
+              );
+            })}
           </div>
-        </motion.div>
-
-        <div className="space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: 'easeOut', delay: 0.05 }}
-            className="overflow-hidden rounded-[10px] border border-[#D7DCE2] bg-[#F5F5F5]"
-          >
-            <img
-              src={primaryLocation?.mapImage ?? 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=85'}
-              alt={primaryLocation?.name ?? 'Store location'}
-              crossOrigin="anonymous"
-              className="h-[28rem] w-full object-cover"
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: 'easeOut', delay: 0.12 }}
-            className="rounded-[10px] border border-[#D7DCE2] bg-[#F5F5F5] p-6 md:p-8"
-          >
-            <ContactExperience embedded className="w-full" />
-          </motion.div>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-12 md:px-6 lg:px-8 lg:py-16">
+        <ContactForm />
       </section>
     </main>
   );

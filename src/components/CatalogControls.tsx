@@ -1,205 +1,203 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Search, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ChevronDown, Filter, RefreshCw, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Availability, Category, FilterState } from '@/types';
-import { categories as mockCategories } from '@/data/mockData';
+import type { Availability, Category } from '@/types';
 
-type CatalogControlsProps = {
-  value?: FilterState;
-  onChange?: (next: FilterState) => void;
+export interface CatalogControlsProps {
   className?: string;
-};
+  query?: string;
+  categories?: Category[];
+  availability?: Availability[];
+  sortBy?: 'featured' | 'price-asc' | 'price-desc' | 'newest';
+  onQueryChange?: (value: string) => void;
+  onCategoriesChange?: (value: Category[]) => void;
+  onAvailabilityChange?: (value: Availability[]) => void;
+  onSortChange?: (value: 'featured' | 'price-asc' | 'price-desc' | 'newest') => void;
+  onReset?: () => void;
+  allCategories?: Category[];
+  allAvailability?: Availability[];
+}
 
-const availabilityOptions: Array<Availability | 'All'> = ['All', 'available', 'limited', 'sold-out'];
-const sortOptions: FilterState['sortBy'][] = ['featured', 'price-asc', 'price-desc', 'name'];
+const defaultCategories: Category[] = ['String', 'Percussion', 'Wind', 'Keyboard', 'Electronic', 'Accessories'];
+const defaultAvailability: Availability[] = ['In Stock', 'Limited', 'Preorder', 'Out of Stock'];
 
-const categoryOptions = ['All', ...(mockCategories ?? [])] as Array<Category | 'All'>;
-
-const defaultValue: FilterState = {
-  query: '',
-  category: 'All',
-  availability: 'All',
-  sortBy: 'featured',
-};
-
-function CatalogControls({ value = defaultValue, onChange = () => {}, className = '' }: CatalogControlsProps) {
-  const [query, setQuery] = useState(value?.query ?? '');
-  const [openMenu, setOpenMenu] = useState<'category' | 'availability' | 'sort' | null>(null);
+export function CatalogControls({
+  className = '',
+  query = '',
+  categories = [],
+  availability = [],
+  sortBy = 'featured',
+  onQueryChange = () => undefined,
+  onCategoriesChange = () => undefined,
+  onAvailabilityChange = () => undefined,
+  onSortChange = () => undefined,
+  onReset = () => undefined,
+  allCategories = defaultCategories,
+  allAvailability = defaultAvailability,
+}: CatalogControlsProps) {
+  const [localQuery, setLocalQuery] = useState(query);
+  const [openCategories, setOpenCategories] = useState(false);
+  const [openAvailability, setOpenAvailability] = useState(false);
 
   useEffect(() => {
-    const t = window.setTimeout(() => {
-      onChange({
-        query,
-        category: value?.category ?? 'All',
-        availability: value?.availability ?? 'All',
-        sortBy: value?.sortBy ?? 'featured',
-      });
-    }, 250);
-    return () => window.clearTimeout(t);
-  }, [query, onChange, value?.availability, value?.category, value?.sortBy]);
+    setLocalQuery(query);
+  }, [query]);
 
   useEffect(() => {
-    setQuery(value?.query ?? '');
-  }, [value?.query]);
+    const timer = window.setTimeout(() => onQueryChange(localQuery), 250);
+    return () => window.clearTimeout(timer);
+  }, [localQuery, onQueryChange]);
 
-  const activeCount = useMemo(() => {
-    return Number((value?.category ?? 'All') !== 'All') + Number((value?.availability ?? 'All') !== 'All') + Number((value?.sortBy ?? 'featured') !== 'featured') + Number((query ?? '').trim().length > 0);
-  }, [query, value?.availability, value?.category, value?.sortBy]);
+  const activeCount = useMemo(
+    () => (localQuery.trim() ? 1 : 0) + categories.length + availability.length + (sortBy !== 'featured' ? 1 : 0),
+    [localQuery, categories.length, availability.length, sortBy]
+  );
 
-  const update = (patch: Partial<FilterState>) => {
-    onChange({
-      query,
-      category: value?.category ?? 'All',
-      availability: value?.availability ?? 'All',
-      sortBy: value?.sortBy ?? 'featured',
-      ...patch,
-    });
-  };
-
-  const clearAll = () => {
-    setQuery('');
-    onChange(defaultValue);
-    setOpenMenu(null);
+  const toggleValue = <T,>(value: T, list: T[], setter: (next: T[]) => void) => {
+    const next = list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
+    setter(next);
   };
 
   return (
-    <section className={cn('w-full border-b border-[#D6DADE] bg-white', className)}>
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="relative w-full md:max-w-xl">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5E6670]" />
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
+      className={cn('rounded-[12px] border border-[#D7DDE3] bg-white p-4 md:p-5', className)}
+    >
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative w-full lg:max-w-xl">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F6B76]" />
             <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search instruments, materials, origins..."
-              aria-label="Search instruments"
-              className="h-12 w-full border border-[#D6DADE] bg-[#F5F5F5] pl-11 pr-12 text-sm text-[#17191C] outline-none transition focus:border-[#17191C]"
+              value={localQuery}
+              onChange={(e) => setLocalQuery(e.target.value)}
+              placeholder="Search instruments, makers, materials..."
+              aria-label="Search catalog"
+              className="h-11 w-full rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] pl-10 pr-10 text-sm text-[#18222C] outline-none transition focus:border-[#D32F2F] focus:bg-white"
             />
-            <button
-              type="button"
-              onClick={() => setQuery('')}
-              aria-label="Clear search"
-              className={cn(
-                'absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#5E6670] transition hover:text-[#17191C]',
-                query ? 'opacity-100' : 'pointer-events-none opacity-0'
-              )}
-            >
-              <X className="h-4 w-4" />
-            </button>
+            {localQuery.trim() ? (
+              <button
+                type="button"
+                onClick={() => setLocalQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-[#5F6B76] transition hover:bg-white hover:text-[#18222C]"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-2 rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] px-3 py-2 text-xs font-semibold uppercase tracking-widest text-[#5F6B76]">
+              <span>Sort</span>
+              <select
+                value={sortBy}
+                onChange={(e) => onSortChange(e.target.value as CatalogControlsProps['sortBy'])}
+                className="bg-transparent text-xs font-semibold uppercase tracking-widest text-[#18222C] outline-none"
+                aria-label="Sort catalog"
+              >
+                <option value="featured">Featured</option>
+                <option value="newest">Newest</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+              </select>
+            </label>
+
             <button
               type="button"
-              onClick={clearAll}
-              className={cn(
-                'h-12 border border-[#D6DADE] px-4 text-xs font-semibold uppercase tracking-widest text-[#17191C] transition hover:border-[#17191C]',
-                activeCount > 0 ? 'bg-[#17191C] text-white hover:bg-[#D32F2F] hover:border-[#D32F2F]' : 'bg-white'
-              )}
+              onClick={() => setOpenCategories((v) => !v)}
+              className="inline-flex h-11 items-center gap-2 rounded-[12px] border border-[#D7DDE3] bg-white px-4 text-xs font-semibold uppercase tracking-widest text-[#18222C] transition hover:border-[#D32F2F] hover:text-[#D32F2F]"
+              aria-expanded={openCategories}
+              aria-controls="catalog-categories"
             >
-              Clear all
+              <Filter className="h-4 w-4" />
+              Categories
+              <ChevronDown className={cn('h-4 w-4 transition-transform', openCategories && 'rotate-180')} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setOpenAvailability((v) => !v)}
+              className="inline-flex h-11 items-center gap-2 rounded-[12px] border border-[#D7DDE3] bg-white px-4 text-xs font-semibold uppercase tracking-widest text-[#18222C] transition hover:border-[#D32F2F] hover:text-[#D32F2F]"
+              aria-expanded={openAvailability}
+              aria-controls="catalog-availability"
+            >
+              <ChevronDown className={cn('h-4 w-4 transition-transform', openAvailability && 'rotate-180')} />
+              Availability
+            </button>
+
+            <button
+              type="button"
+              onClick={onReset}
+              className="inline-flex h-11 items-center gap-2 rounded-[12px] bg-[#D32F2F] px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-[#B71C1C]"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Reset
             </button>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Dropdown
-            label="Category"
-            value={value?.category ?? 'All'}
-            open={openMenu === 'category'}
-            onOpenChange={(next) => setOpenMenu(next ? 'category' : null)}
-            options={categoryOptions}
-            onSelect={(next) => update({ category: next as FilterState['category'] })}
-          />
-          <Dropdown
-            label="Availability"
-            value={value?.availability ?? 'All'}
-            open={openMenu === 'availability'}
-            onOpenChange={(next) => setOpenMenu(next ? 'availability' : null)}
-            options={availabilityOptions}
-            onSelect={(next) => update({ availability: next as FilterState['availability'] })}
-          />
-          <Dropdown
-            label="Sort"
-            value={value?.sortBy ?? 'featured'}
-            open={openMenu === 'sort'}
-            onOpenChange={(next) => setOpenMenu(next ? 'sort' : null)}
-            options={sortOptions}
-            onSelect={(next) => update({ sortBy: next as FilterState['sortBy'] })}
-          />
+        <div className="flex flex-wrap items-center gap-2 text-xs text-[#5F6B76]">
+          <span className="font-semibold uppercase tracking-widest text-[#18222C]">Active filters</span>
+          <span>{activeCount > 0 ? `${activeCount} applied` : 'None'}</span>
         </div>
-      </div>
-    </section>
-  );
-}
 
-type DropdownProps = {
-  label: string;
-  value: string;
-  options: string[];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSelect: (value: string) => void;
-};
-
-function Dropdown({ label, value, options, open, onOpenChange, onSelect }: DropdownProps) {
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => onOpenChange(!open)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        className="flex h-11 items-center gap-2 border border-[#D6DADE] bg-white px-4 text-xs font-semibold uppercase tracking-widest text-[#17191C] transition hover:border-[#17191C]"
-      >
-        <span>{label}</span>
-        <span className="text-[#5E6670]">·</span>
-        <span className="max-w-[9rem] truncate text-[#5E6670]">{value}</span>
-        <ChevronDown className={cn('h-4 w-4 transition-transform', open && 'rotate-180')} />
-      </button>
-
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.18 }}
-            className="absolute left-0 top-[calc(100%+0.5rem)] z-20 min-w-56 overflow-hidden border border-[#D6DADE] bg-white shadow-[0_18px_40px_rgba(0,0,0,0.08)]"
-          >
-            <div role="listbox" aria-label={label} className="max-h-72 overflow-auto p-2">
-              {options.map((option) => {
-                const selected = option === value;
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => {
-                      onSelect(option);
-                      onOpenChange(false);
-                    }}
-                    className={cn(
-                      'flex w-full items-center justify-between px-3 py-2 text-left text-sm transition',
-                      selected ? 'bg-[#17191C] text-white' : 'text-[#17191C] hover:bg-[#F5F5F5]'
-                    )}
-                  >
-                    <span>{option}</span>
-                    {selected ? <span className="text-xs uppercase tracking-widest">Selected</span> : null}
-                  </button>
-                );
-              })}
-            </div>
-          </motion.div>
+        {openCategories ? (
+          <div id="catalog-categories" className="grid gap-2 rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] p-3 sm:grid-cols-2 lg:grid-cols-3">
+            {allCategories.map((category) => {
+              const checked = categories.includes(category);
+              return (
+                <label
+                  key={category}
+                  className={cn(
+                    'flex cursor-pointer items-center justify-between rounded-[12px] border px-3 py-2 text-sm transition',
+                    checked ? 'border-[#D32F2F] bg-white text-[#18222C]' : 'border-transparent bg-white/70 text-[#5F6B76] hover:border-[#D7DDE3]'
+                  )}
+                >
+                  <span>{category}</span>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleValue(category, categories, onCategoriesChange)}
+                    className="h-4 w-4 accent-[#D32F2F]"
+                    aria-label={category}
+                  />
+                </label>
+              );
+            })}
+          </div>
         ) : null}
-      </AnimatePresence>
-    </div>
-  );
-}
 
-export function CatalogControlsNamed(props: CatalogControlsProps) {
-  return <CatalogControls {...props} />;
+        {openAvailability ? (
+          <div id="catalog-availability" className="grid gap-2 rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] p-3 sm:grid-cols-2 lg:grid-cols-4">
+            {allAvailability.map((item) => {
+              const checked = availability.includes(item);
+              return (
+                <label
+                  key={item}
+                  className={cn(
+                    'flex cursor-pointer items-center justify-between rounded-[12px] border px-3 py-2 text-sm transition',
+                    checked ? 'border-[#D32F2F] bg-white text-[#18222C]' : 'border-transparent bg-white/70 text-[#5F6B76] hover:border-[#D7DDE3]'
+                  )}
+                >
+                  <span>{item}</span>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleValue(item, availability, onAvailabilityChange)}
+                    className="h-4 w-4 accent-[#D32F2F]"
+                    aria-label={item}
+                  />
+                </label>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+    </motion.section>
+  );
 }
 
 export default CatalogControls;
-export { CatalogControls };

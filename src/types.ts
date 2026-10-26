@@ -1,46 +1,40 @@
-export type AvailabilityStatus = 'available' | 'limited' | 'sold-out';
+export type Category = 'String' | 'Percussion' | 'Wind' | 'Keyboard' | 'Electronic' | 'Accessories';
 
-export type Category = 'String' | 'Wind' | 'Percussion' | 'Keyboard' | 'Accessories';
+export type Availability = 'In Stock' | 'Limited' | 'Preorder' | 'Out of Stock';
 
-export type CatalogFilter = {
-  category: Category | 'All';
-  availability: AvailabilityStatus | 'All';
-  search: string;
-};
-
-export type ContactMessage = {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-};
-
-export type FormError = {
-  field: keyof ContactMessage;
-  message: string;
-};
-
-export type Instrument = {
+export interface Instrument {
   id: string;
   slug: string;
   name: string;
   category: Category;
+  family: string;
   price: number;
-  availability: AvailabilityStatus;
-  image: string;
-  accent: 'red' | 'green' | 'blue';
+  availability: Availability;
   description: string;
-  origin: string;
-  materials: string[];
+  shortDescription: string;
+  image: string;
+  gallery: string[];
+  accent: 'red' | 'green' | 'blue';
   featured?: boolean;
-};
+  newArrival?: boolean;
+  tags?: string[];
+  materials?: string[];
+  dimensions?: string;
+  origin?: string;
+}
 
-export type Types = {
-  instruments: Instrument[];
+export interface ContactMessage {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+export interface CatalogFilters {
+  query: string;
   categories: Category[];
-  filters: CatalogFilter;
-  contactMessage: ContactMessage;
-  formErrors: FormError[];
-};
+  availability: Availability[];
+  sortBy: 'featured' | 'price-asc' | 'price-desc' | 'newest';
+}
 
-export default Types;
+export default {};
