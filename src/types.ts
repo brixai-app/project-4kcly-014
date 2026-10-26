@@ -1,48 +1,46 @@
-import React from 'react';
-export type Availability = 'available' | 'limited' | 'sold-out';
+export type AvailabilityStatus = 'available' | 'limited' | 'sold-out';
 
-export type Category = 'String' | 'Percussion' | 'Wind' | 'Keyboard' | 'Electronic' | 'Accessories';
+export type Category = 'String' | 'Wind' | 'Percussion' | 'Keyboard' | 'Accessories';
 
-export interface Instrument {
+export type CatalogFilter = {
+  category: Category | 'All';
+  availability: AvailabilityStatus | 'All';
+  search: string;
+};
+
+export type ContactMessage = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+};
+
+export type FormError = {
+  field: keyof ContactMessage;
+  message: string;
+};
+
+export type Instrument = {
   id: string;
   slug: string;
   name: string;
   category: Category;
   price: number;
-  availability: Availability;
+  availability: AvailabilityStatus;
   image: string;
-  gallery: string[];
-  shortDescription: string;
-  description: string;
-  materials: string[];
-  origin: string;
-  featured: boolean;
   accent: 'red' | 'green' | 'blue';
-}
+  description: string;
+  origin: string;
+  materials: string[];
+  featured?: boolean;
+};
 
-export interface ContactMessage {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  instrumentId?: string;
-}
+export type Types = {
+  instruments: Instrument[];
+  categories: Category[];
+  filters: CatalogFilter;
+  contactMessage: ContactMessage;
+  formErrors: FormError[];
+};
 
-export interface FilterState {
-  query: string;
-  category: Category | 'All';
-  availability: Availability | 'All';
-  sortBy: 'featured' | 'price-asc' | 'price-desc' | 'name';
-}
-
-export interface ComponentContract {
-  className?: string;
-  children?: React.ReactNode;
-}
-
-export interface SectionContract extends ComponentContract {
-  title?: string;
-  eyebrow?: string;
-}
-
-export default {};
+export default Types;

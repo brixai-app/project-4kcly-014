@@ -7,10 +7,10 @@
   --color-bg-rgb: 255, 255, 255;
   --color-surface: #F5F5F5;
   --color-surface-rgb: 245, 245, 245;
-  --color-surface-hover: #EBEEF2;
-  --color-surface-hover-rgb: 235, 238, 242;
-  --color-border: #D6DADE;
-  --color-border-rgb: 214, 218, 222;
+  --color-surface-hover: #EAF2FA;
+  --color-surface-hover-rgb: 234, 242, 250;
+  --color-border: #D7DCE2;
+  --color-border-rgb: 215, 220, 226;
   --color-text-primary: #17191C;
   --color-text-primary-rgb: 23, 25, 28;
   --color-text-muted: #5E6670;
