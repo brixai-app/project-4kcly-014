@@ -1,0 +1,33 @@
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        theme: {
+          bg: '#F9F6F2',
+          surface: '#EFE9E1',
+          'surface-hover': '#E5DDD2',
+          border: '#C9BBA8',
+          primary: '#2E2B28',
+          muted: '#6F675E',
+          accent: '#8B0000',
+          'accent-hover': '#690000',
+          'accent-text': '#ffffff',
+        },
+        bg: '#F9F6F2',
+        surface: '#EFE9E1',
+        'surface-hover': '#E5DDD2',
+        accent: '#8B0000',
+        'accent-hover': '#690000',
+      },
+      fontFamily: {
+        sans: ['DM Sans', 'sans-serif'],
+        display: ['Bodoni Moda', 'sans-serif'],
+      },
+      borderRadius: {
+        theme: '2px',
+      },
+    },
+  },
+  plugins: [],
+};

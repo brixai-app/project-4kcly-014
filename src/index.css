@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #F9F6F2;
+  --color-bg-rgb: 249, 246, 242;
+  --color-surface: #EFE9E1;
+  --color-surface-rgb: 239, 233, 225;
+  --color-surface-hover: #E5DDD2;
+  --color-surface-hover-rgb: 229, 221, 210;
+  --color-border: #C9BBA8;
+  --color-border-rgb: 201, 187, 168;
+  --color-text-primary: #2E2B28;
+  --color-text-primary-rgb: 46, 43, 40;
+  --color-text-muted: #6F675E;
+  --color-text-muted-rgb: 111, 103, 94;
+  --color-accent: #8B0000;
+  --color-accent-rgb: 139, 0, 0;
+  --color-accent-hover: #690000;
+  --color-accent-hover-rgb: 105, 0, 0;
+  --color-accent-text: #ffffff;
+  --radius-theme: 2px;
+  --font-heading: 'Bodoni Moda', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg);
+    background-image: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(var(--color-accent-rgb), 0.06), transparent 60%);
+    background-attachment: fixed;
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
