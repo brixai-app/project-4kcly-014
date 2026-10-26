@@ -1,47 +1,48 @@
-export type InstrumentCategory = 'string' | 'wind' | 'percussion' | 'keyboard' | 'electronic' | 'folk';
-export type InstrumentCondition = 'museum' | 'collector' | 'restored' | 'performance';
-export type InquiryTopic = 'availability' | 'provenance' | 'private-viewing' | 'restoration' | 'shipping';
-export type FilterState = {
-  category: InstrumentCategory | 'all';
-  condition: InstrumentCondition | 'all';
-  origin: string;
-  search: string;
-};
-export type SoundSample = {
-  label: string;
-  url: string;
-  duration: string;
-};
-export type CarouselSlide = {
+import React from 'react';
+export type Availability = 'available' | 'limited' | 'sold-out';
+
+export type Category = 'String' | 'Percussion' | 'Wind' | 'Keyboard' | 'Electronic' | 'Accessories';
+
+export interface Instrument {
   id: string;
-  title: string;
-  subtitle: string;
-  image: string;
-  eyebrow: string;
-};
-export type Instrument = {
-  id: string;
+  slug: string;
   name: string;
-  category: InstrumentCategory;
-  condition: InstrumentCondition;
-  origin: string;
-  year: string;
-  price: string;
+  category: Category;
+  price: number;
+  availability: Availability;
   image: string;
+  gallery: string[];
+  shortDescription: string;
   description: string;
-  story: string;
   materials: string[];
-  soundSamples: SoundSample[];
-  featured?: boolean;
-};
-export type Inquiry = {
+  origin: string;
+  featured: boolean;
+  accent: 'red' | 'green' | 'blue';
+}
+
+export interface ContactMessage {
   name: string;
   email: string;
-  topic: InquiryTopic;
-  instrumentId?: string;
+  subject: string;
   message: string;
-};
-export const instrumentCategories: InstrumentCategory[] = ['string', 'wind', 'percussion', 'keyboard', 'electronic', 'folk'];
-export const instrumentConditions: InstrumentCondition[] = ['museum', 'collector', 'restored', 'performance'];
-export const inquiryTopics: InquiryTopic[] = ['availability', 'provenance', 'private-viewing', 'restoration', 'shipping'];
-export default Instrument;
+  instrumentId?: string;
+}
+
+export interface FilterState {
+  query: string;
+  category: Category | 'All';
+  availability: Availability | 'All';
+  sortBy: 'featured' | 'price-asc' | 'price-desc' | 'name';
+}
+
+export interface ComponentContract {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+export interface SectionContract extends ComponentContract {
+  title?: string;
+  eyebrow?: string;
+}
+
+export default {};
