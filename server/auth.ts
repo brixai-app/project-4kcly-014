@@ -2,16 +2,19 @@ import { betterAuth } from 'better-auth';
 import { memoryAdapter } from 'better-auth/adapters/memory';
 import { db } from './db';
 
-const trustedOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'https://www.brixai.app',
-];
-
 export const auth = betterAuth({
   baseURL: typeof process !== 'undefined' && process.env?.BETTER_AUTH_URL ? process.env.BETTER_AUTH_URL : undefined,
   secret: 'brix-dev-secret-key-32-characters-long',
-  trustedOrigins,
+  trustedOrigins: [
+    'http://localhost:*',
+    'http://127.0.0.1:*',
+    'https://*.webcontainer-api.io',
+    'https://*.local-credentialless.webcontainer-api.io',
+    'https://*.webcontainer.io',
+    'https://*.brixai.app',
+    'https://brixai.app',
+    'https://*.vercel.app',
+  ],
   advanced: {
     trustedProxyHeaders: true
   },

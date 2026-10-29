@@ -1,42 +1,44 @@
-export type InstrumentCategory = 'Strings' | 'Percussion' | 'Wind' | 'Keyboard' | 'Electronic' | 'Fusion';
-
-export type ContactSubject = 'General Inquiry' | 'Book a Session' | 'Collaboration' | 'Press';
+export type InstrumentCategory = 'string' | 'percussion' | 'wind' | 'keyboard' | 'electronic' | 'folk';
 
 export interface InstrumentSpecifications {
   origin?: string;
   material?: string;
   tuning?: string;
-  range?: string;
   dimensions?: string;
   weight?: string;
   finish?: string;
+  includedAccessories?: string[];
+  care?: string[];
 }
 
 export interface Instrument {
   id: string;
   name: string;
   category: InstrumentCategory;
-  price?: string;
+  price: number;
   description: string;
   image: string;
-  accent: 'red' | 'green' | 'blue';
+  accentColor?: string;
   featured?: boolean;
+  inStock?: boolean;
   specifications?: InstrumentSpecifications;
   tags?: string[];
 }
 
-export interface ContactFormSubmission {
+export interface ContactFormData {
   name: string;
   email: string;
-  subject: ContactSubject;
+  subject: string;
   message: string;
 }
 
-export interface DrawerState {
-  open: boolean;
-  instrumentId?: string | null;
+export interface ValidationError {
+  field: keyof ContactFormData | 'general';
+  message: string;
 }
 
-export type ShowcaseDrawerState = DrawerState;
+export interface ValidationErrors {
+  errors: ValidationError[];
+}
 
 export default Instrument;

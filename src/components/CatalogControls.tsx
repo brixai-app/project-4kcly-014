@@ -1,202 +1,120 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronDown, Filter, RefreshCw, Search, X } from 'lucide-react';
+import { Search, Filter, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Availability, Category } from '@/types';
+import type { InstrumentCategory } from '@/types';
 
-export interface CatalogControlsProps {
+type CatalogControlsProps = {
+  search: string;
+  category: InstrumentCategory | 'all';
+  resultCount?: number;
+  categories?: InstrumentCategory[];
+  onSearchChange?: (value: string) => void;
+  onCategoryChange?: (value: InstrumentCategory | 'all') => void;
+  onClear?: () => void;
   className?: string;
-  query?: string;
-  categories?: Category[];
-  availability?: Availability[];
-  sortBy?: 'featured' | 'price-asc' | 'price-desc' | 'newest';
-  onQueryChange?: (value: string) => void;
-  onCategoriesChange?: (value: Category[]) => void;
-  onAvailabilityChange?: (value: Availability[]) => void;
-  onSortChange?: (value: 'featured' | 'price-asc' | 'price-desc' | 'newest') => void;
-  onReset?: () => void;
-  allCategories?: Category[];
-  allAvailability?: Availability[];
-}
+};
 
-const defaultCategories: Category[] = ['String', 'Percussion', 'Wind', 'Keyboard', 'Electronic', 'Accessories'];
-const defaultAvailability: Availability[] = ['In Stock', 'Limited', 'Preorder', 'Out of Stock'];
+const defaultCategories: InstrumentCategory[] = ['string', 'percussion', 'wind', 'keyboard', 'electronic', 'folk'];
 
 export function CatalogControls({
+  search = '',
+  category = 'all',
+  resultCount = 0,
+  categories = defaultCategories,
+  onSearchChange = () => undefined,
+  onCategoryChange = () => undefined,
+  onClear = () => undefined,
   className = '',
-  query = '',
-  categories = [],
-  availability = [],
-  sortBy = 'featured',
-  onQueryChange = () => undefined,
-  onCategoriesChange = () => undefined,
-  onAvailabilityChange = () => undefined,
-  onSortChange = () => undefined,
-  onReset = () => undefined,
-  allCategories = defaultCategories,
-  allAvailability = defaultAvailability,
 }: CatalogControlsProps) {
-  const [localQuery, setLocalQuery] = useState(query);
-  const [openCategories, setOpenCategories] = useState(false);
-  const [openAvailability, setOpenAvailability] = useState(false);
+  const [localSearch, setLocalSearch] = useState(search);
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   useEffect(() => {
-    setLocalQuery(query);
-  }, [query]);
+    setLocalSearch(search ?? '');
+  }, [search]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => onQueryChange(localQuery), 250);
+    const timer = window.setTimeout(() => setDebouncedSearch(localSearch ?? ''), 300);
     return () => window.clearTimeout(timer);
-  }, [localQuery, onQueryChange]);
+  }, [localSearch]);
 
-  const activeCount = useMemo(
-    () => (localQuery.trim() ? 1 : 0) + categories.length + availability.length + (sortBy !== 'featured' ? 1 : 0),
-    [localQuery, categories.length, availability.length, sortBy]
-  );
+  useEffect(() => {
+    if ((debouncedSearch ?? '') !== (search ?? '')) onSearchChange(debouncedSearch);
+  }, [debouncedSearch, search, onSearchChange]);
 
-  const toggleValue = <T,>(value: T, list: T[], setter: (next: T[]) => void) => {
-    const next = list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
-    setter(next);
-  };
+  const categoryOptions = useMemo(() => ['all', ...(categories ?? [])], [categories]);
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: 'easeOut' }}
-      className={cn('rounded-[12px] border border-[#D7DDE3] bg-white p-4 md:p-5', className)}
-    >
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="relative w-full lg:max-w-xl">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F6B76]" />
+    <section className={cn('rounded-[18px] border border-[#D8DEE5] bg-white p-4 shadow-[0_10px_30px_rgba(34,34,34,0.06)]', className)}>
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="min-w-0 flex-1">
+          <label htmlFor="catalog-search" className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">
+            <Search className="h-4 w-4 text-[#E63946]" />
+            Search instruments
+          </label>
+          <div className="flex items-center gap-2 rounded-md border border-[#D8DEE5] bg-[#F7F5F2] px-3 py-2">
+            <Search className="h-4 w-4 shrink-0 text-[#5E6670]" />
             <input
-              value={localQuery}
-              onChange={(e) => setLocalQuery(e.target.value)}
-              placeholder="Search instruments, makers, materials..."
-              aria-label="Search catalog"
-              className="h-11 w-full rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] pl-10 pr-10 text-sm text-[#18222C] outline-none transition focus:border-[#D32F2F] focus:bg-white"
+              id="catalog-search"
+              type="search"
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              placeholder="Search by name, tag, or description"
+              className="min-w-0 flex-1 bg-transparent text-sm text-[#222222] outline-none placeholder:text-[#5E6670]"
             />
-            {localQuery.trim() ? (
+            {localSearch ? (
               <button
                 type="button"
-                onClick={() => setLocalQuery('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-[#5F6B76] transition hover:bg-white hover:text-[#18222C]"
+                onClick={() => {
+                  setLocalSearch('');
+                  onSearchChange('');
+                }}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#D8DEE5] text-[#5E6670] transition-colors hover:border-[#E63946] hover:text-[#E63946]"
                 aria-label="Clear search"
               >
                 <X className="h-4 w-4" />
               </button>
             ) : null}
           </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-2 rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] px-3 py-2 text-xs font-semibold uppercase tracking-widest text-[#5F6B76]">
-              <span>Sort</span>
-              <select
-                value={sortBy}
-                onChange={(e) => onSortChange(e.target.value as CatalogControlsProps['sortBy'])}
-                className="bg-transparent text-xs font-semibold uppercase tracking-widest text-[#18222C] outline-none"
-                aria-label="Sort catalog"
-              >
-                <option value="featured">Featured</option>
-                <option value="newest">Newest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-              </select>
-            </label>
-
-            <button
-              type="button"
-              onClick={() => setOpenCategories((v) => !v)}
-              className="inline-flex h-11 items-center gap-2 rounded-[12px] border border-[#D7DDE3] bg-white px-4 text-xs font-semibold uppercase tracking-widest text-[#18222C] transition hover:border-[#D32F2F] hover:text-[#D32F2F]"
-              aria-expanded={openCategories}
-              aria-controls="catalog-categories"
-            >
-              <Filter className="h-4 w-4" />
-              Categories
-              <ChevronDown className={cn('h-4 w-4 transition-transform', openCategories && 'rotate-180')} />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setOpenAvailability((v) => !v)}
-              className="inline-flex h-11 items-center gap-2 rounded-[12px] border border-[#D7DDE3] bg-white px-4 text-xs font-semibold uppercase tracking-widest text-[#18222C] transition hover:border-[#D32F2F] hover:text-[#D32F2F]"
-              aria-expanded={openAvailability}
-              aria-controls="catalog-availability"
-            >
-              <ChevronDown className={cn('h-4 w-4 transition-transform', openAvailability && 'rotate-180')} />
-              Availability
-            </button>
-
-            <button
-              type="button"
-              onClick={onReset}
-              className="inline-flex h-11 items-center gap-2 rounded-[12px] bg-[#D32F2F] px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-[#B71C1C]"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Reset
-            </button>
-          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-xs text-[#5F6B76]">
-          <span className="font-semibold uppercase tracking-widest text-[#18222C]">Active filters</span>
-          <span>{activeCount > 0 ? `${activeCount} applied` : 'None'}</span>
+        <div className="flex flex-col gap-2.5 sm:min-w-[220px]">
+          <label htmlFor="catalog-category" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">
+            <Filter className="h-4 w-4 text-[#E63946]" />
+            Category
+          </label>
+          <select
+            id="catalog-category"
+            value={category}
+            onChange={(e) => onCategoryChange(e.target.value as InstrumentCategory | 'all')}
+            className="min-w-0 rounded-md border border-[#D8DEE5] bg-white px-3 py-2 text-sm text-[#222222] outline-none transition-colors focus:border-[#E63946]"
+          >
+            {categoryOptions.map((option) => (
+              <option key={option} value={option}>
+                {option === 'all' ? 'All categories' : option.charAt(0).toUpperCase() + option.slice(1)}
+              </option>
+            ))}
+          </select>
         </div>
-
-        {openCategories ? (
-          <div id="catalog-categories" className="grid gap-2 rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] p-3 sm:grid-cols-2 lg:grid-cols-3">
-            {allCategories.map((category) => {
-              const checked = categories.includes(category);
-              return (
-                <label
-                  key={category}
-                  className={cn(
-                    'flex cursor-pointer items-center justify-between rounded-[12px] border px-3 py-2 text-sm transition',
-                    checked ? 'border-[#D32F2F] bg-white text-[#18222C]' : 'border-transparent bg-white/70 text-[#5F6B76] hover:border-[#D7DDE3]'
-                  )}
-                >
-                  <span>{category}</span>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => toggleValue(category, categories, onCategoriesChange)}
-                    className="h-4 w-4 accent-[#D32F2F]"
-                    aria-label={category}
-                  />
-                </label>
-              );
-            })}
-          </div>
-        ) : null}
-
-        {openAvailability ? (
-          <div id="catalog-availability" className="grid gap-2 rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] p-3 sm:grid-cols-2 lg:grid-cols-4">
-            {allAvailability.map((item) => {
-              const checked = availability.includes(item);
-              return (
-                <label
-                  key={item}
-                  className={cn(
-                    'flex cursor-pointer items-center justify-between rounded-[12px] border px-3 py-2 text-sm transition',
-                    checked ? 'border-[#D32F2F] bg-white text-[#18222C]' : 'border-transparent bg-white/70 text-[#5F6B76] hover:border-[#D7DDE3]'
-                  )}
-                >
-                  <span>{item}</span>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => toggleValue(item, availability, onAvailabilityChange)}
-                    className="h-4 w-4 accent-[#D32F2F]"
-                    aria-label={item}
-                  />
-                </label>
-              );
-            })}
-          </div>
-        ) : null}
       </div>
-    </motion.section>
+
+      <div className="mt-4 flex flex-col gap-3 border-t border-[#D8DEE5] pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-[#5E6670]">
+          <span className="font-semibold text-[#222222]">{resultCount}</span> results
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setLocalSearch('');
+            onClear();
+          }}
+          className="inline-flex items-center gap-2 self-start rounded-md border border-[#D8DEE5] px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#222222] transition-colors hover:border-[#E63946] hover:text-[#E63946]"
+        >
+          <X className="h-4 w-4" />
+          Clear
+        </button>
+      </div>
+    </section>
   );
 }
 

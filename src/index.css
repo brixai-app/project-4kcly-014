@@ -3,22 +3,22 @@
 @tailwind utilities;
 
 :root {
-  --color-bg: #1D1D1D;
-  --color-bg-rgb: 29, 29, 29;
-  --color-surface: #25282B;
-  --color-surface-rgb: 37, 40, 43;
-  --color-surface-hover: #244B46;
-  --color-surface-hover-rgb: 36, 75, 70;
-  --color-border: #457B9D;
-  --color-border-rgb: 69, 123, 157;
-  --color-text-primary: #F1FAEE;
-  --color-text-primary-rgb: 241, 250, 238;
-  --color-text-muted: #A8DADC;
-  --color-text-muted-rgb: 168, 218, 220;
+  --color-bg: #FFFFFF;
+  --color-bg-rgb: 255, 255, 255;
+  --color-surface: #F7F5F2;
+  --color-surface-rgb: 247, 245, 242;
+  --color-surface-hover: #FFF4F4;
+  --color-surface-hover-rgb: 255, 244, 244;
+  --color-border: #D8DEE5;
+  --color-border-rgb: 216, 222, 229;
+  --color-text-primary: #222222;
+  --color-text-primary-rgb: 34, 34, 34;
+  --color-text-muted: #5E6670;
+  --color-text-muted-rgb: 94, 102, 112;
   --color-accent: #E63946;
   --color-accent-rgb: 230, 57, 70;
-  --color-accent-hover: #C92F3C;
-  --color-accent-hover-rgb: 201, 47, 60;
+  --color-accent-hover: #C92836;
+  --color-accent-hover-rgb: 201, 40, 54;
   --color-accent-text: #000000;
   --radius-theme: 18px;
   --font-heading: 'Outfit', sans-serif;
