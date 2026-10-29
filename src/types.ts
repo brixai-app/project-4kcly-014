@@ -1,40 +1,42 @@
-export type Category = 'String' | 'Percussion' | 'Wind' | 'Keyboard' | 'Electronic' | 'Accessories';
+export type InstrumentCategory = 'Strings' | 'Percussion' | 'Wind' | 'Keyboard' | 'Electronic' | 'Fusion';
 
-export type Availability = 'In Stock' | 'Limited' | 'Preorder' | 'Out of Stock';
+export type ContactSubject = 'General Inquiry' | 'Book a Session' | 'Collaboration' | 'Press';
+
+export interface InstrumentSpecifications {
+  origin?: string;
+  material?: string;
+  tuning?: string;
+  range?: string;
+  dimensions?: string;
+  weight?: string;
+  finish?: string;
+}
 
 export interface Instrument {
   id: string;
-  slug: string;
   name: string;
-  category: Category;
-  family: string;
-  price: number;
-  availability: Availability;
+  category: InstrumentCategory;
+  price?: string;
   description: string;
-  shortDescription: string;
   image: string;
-  gallery: string[];
   accent: 'red' | 'green' | 'blue';
   featured?: boolean;
-  newArrival?: boolean;
+  specifications?: InstrumentSpecifications;
   tags?: string[];
-  materials?: string[];
-  dimensions?: string;
-  origin?: string;
 }
 
-export interface ContactMessage {
+export interface ContactFormSubmission {
   name: string;
   email: string;
-  subject: string;
+  subject: ContactSubject;
   message: string;
 }
 
-export interface CatalogFilters {
-  query: string;
-  categories: Category[];
-  availability: Availability[];
-  sortBy: 'featured' | 'price-asc' | 'price-desc' | 'newest';
+export interface DrawerState {
+  open: boolean;
+  instrumentId?: string | null;
 }
 
-export default {};
+export type ShowcaseDrawerState = DrawerState;
+
+export default Instrument;

@@ -1,30 +1,36 @@
-import { motion } from 'framer-motion';
-import CatalogExperience from '@/components/CatalogExperience';
+import React from 'react';
+import CatalogExplorer from '@/components/CatalogExplorer';
 
-export function CatalogPage() {
+export interface CatalogPageProps {
+  className?: string;
+}
+
+export function CatalogPage({ className = '' }: CatalogPageProps) {
   return (
-    <main className="bg-white text-[#18222C]">
-      <section className="border-b border-[#D7DDE3] bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="max-w-3xl"
-          >
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.32em] text-[#5F6B76]">
-              Catalog
-            </p>
-            <h1 className="font-['Outfit',sans-serif] text-4xl font-light tracking-tight text-[#18222C] sm:text-5xl lg:text-6xl">
-              A tactile archive of instruments, materials, and sound.
-            </h1>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5F6B76] sm:text-base">
-              Explore a curated range of strings, percussion, winds, keyboards, electronics, and accessories through a refined editorial catalog with search, filters, and availability controls.
-            </p>
-          </motion.div>
+    <main className={className}>
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col gap-4 border-b border-[#457B9D]/40 pb-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#A8DADC]">
+            Catalog
+          </p>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div className="min-w-0 max-w-3xl">
+              <h1 className="font-[Outfit,sans-serif] text-4xl font-light tracking-tight text-[#F1FAEE] sm:text-5xl">
+                Explore the instrument archive
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#A8DADC] sm:text-base">
+                Browse a curated field of strings, percussion, wind, keyboard, electronic, and fusion instruments with
+                editorial detail and responsive filtering.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-[#A8DADC]">
+              <span className="h-px w-10 bg-[#457B9D]/70" />
+              <span>Curated selection</span>
+            </div>
+          </div>
         </div>
+        <CatalogExplorer />
       </section>
-      <CatalogExperience />
     </main>
   );
 }
