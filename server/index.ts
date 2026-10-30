@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { initDb, inspectTables, getTableData } from './db';
+import { auth } from './auth';
 
 const index = new Hono();
 
@@ -7,9 +9,10 @@ index.use(
   '*',
   cors({
     origin: '*',
-    allowMethods: ['GET', 'POST', 'OPTIONS'],
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
-    credentials: false,
+    exposeHeaders: ['Content-Length'],
+    maxAge: 86400,
   })
 );
 
@@ -21,37 +24,51 @@ index.get('/api/health', (c) =>
   })
 );
 
-index.get('/api/contact', (c) =>
-  c.json({
-    ok: true,
-    message: 'Contact endpoint is available for frontend validation flow.',
-  })
-);
-
-index.post('/api/contact', async (c) => {
-  const body = await c.req.json().catch(() => null);
-  const name = String(body?.name ?? '').trim();
-  const email = String(body?.email ?? '').trim();
-  const subject = String(body?.subject ?? '').trim();
-  const message = String(body?.message ?? '').trim();
-
-  const errors: { field: string; message: string }[] = [];
-  if (!name) errors.push({ field: 'name', message: 'Name is required.' });
-  if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.push({ field: 'email', message: 'Enter a valid email address.' });
-  if (!subject) errors.push({ field: 'subject', message: 'Subject is required.' });
-  if (!message || message.length < 10) errors.push({ field: 'message', message: 'Message must be at least 10 characters.' });
-
-  if (errors.length > 0) {
-    return c.json({ ok: false, errors }, 400);
+index.get('/api/db/tables', async (c) => {
+  try {
+    await initDb();
+    const tables = await inspectTables();
+    return c.json({ ok: true, tables: tables ?? [] });
+  } catch (error) {
+    return c.json(
+      {
+        ok: false,
+        error: error instanceof Error ? error.message : 'Failed to inspect tables',
+      },
+      500
+    );
   }
-
-  return c.json({
-    ok: true,
-    message: 'Your message has been validated successfully.',
-    data: { name, email, subject, message },
-  });
 });
 
-index.notFound((c) => c.json({ ok: false, message: 'Route not found.' }, 404));
+index.get('/api/db/:name', async (c) => {
+  try {
+    await initDb();
+    const name = c.req.param('name') ?? '';
+    const rows = await getTableData(name);
+    return c.json({ ok: true, name, rows: rows ?? [] });
+  } catch (error) {
+    return c.json(
+      {
+        ok: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch table data',
+      },
+      500
+    );
+  }
+});
 
+index.all('/api/auth/*', (c) => typeof auth !== 'undefined' && auth && auth.handler ? auth.handler(c.req.raw) : (typeof auth === 'function' ? auth(c.req.raw) : c.json({ error: 'Auth handler unavailable' }, 500)));
+
+index.all('*', (c) =>
+  c.json(
+    {
+      ok: false,
+      error: 'Not Found',
+      path: c.req.path,
+    },
+    404
+  )
+);
+
+export { index };
 export default index;

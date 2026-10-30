@@ -1,14 +1,20 @@
-export type InstrumentCategory = 'string' | 'percussion' | 'wind' | 'keyboard' | 'electronic' | 'folk';
+export type InstrumentCategory =
+  | 'Strings'
+  | 'Percussion'
+  | 'Wind'
+  | 'Keyboard'
+  | 'Electronic'
+  | 'Accessories';
 
-export interface InstrumentSpecifications {
+export interface InstrumentSpecs {
   origin?: string;
   material?: string;
-  tuning?: string;
   dimensions?: string;
   weight?: string;
   finish?: string;
   includedAccessories?: string[];
-  care?: string[];
+  tuning?: string;
+  power?: string;
 }
 
 export interface Instrument {
@@ -16,29 +22,42 @@ export interface Instrument {
   name: string;
   category: InstrumentCategory;
   price: number;
-  description: string;
   image: string;
-  accentColor?: string;
+  description: string;
   featured?: boolean;
   inStock?: boolean;
-  specifications?: InstrumentSpecifications;
+  rating?: number;
+  reviewCount?: number;
   tags?: string[];
+  specs?: InstrumentSpecs;
 }
 
-export interface ContactFormData {
+export interface ContactInquiry {
   name: string;
   email: string;
+  phone?: string;
+  instrumentId?: string;
   subject: string;
   message: string;
+  preferredContact?: 'email' | 'phone' | 'whatsapp';
 }
 
 export interface ValidationError {
-  field: keyof ContactFormData | 'general';
+  field: string;
   message: string;
 }
 
-export interface ValidationErrors {
-  errors: ValidationError[];
+export interface FilterState {
+  search: string;
+  category: InstrumentCategory | 'All';
+  sortBy?: 'featured' | 'price-asc' | 'price-desc' | 'rating';
+  inStockOnly?: boolean;
+}
+
+export interface NavigationState {
+  isDrawerOpen: boolean;
+  activeInstrumentId?: string | null;
+  lastVisitedPath?: string;
 }
 
 export default Instrument;

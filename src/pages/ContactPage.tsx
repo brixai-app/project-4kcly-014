@@ -1,123 +1,72 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { Mail, MapPin, Phone, Clock, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
-import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { RequestInfoDrawer } from '@/components/RequestInfoDrawer';
 
-export interface ContactPageProps {
-  className?: string;
-}
-
-export function ContactPage({ className = '' }: ContactPageProps) {
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
-
-  useEffect(() => {
-    setOpen(true);
-  }, []);
-
-  const canSubmit = useMemo(
-    () => Boolean(form.name?.trim() && form.email?.trim() && form.subject?.trim() && form.message?.trim()),
-    [form]
-  );
-
-  const handleChange = (field: keyof typeof form, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!canSubmit) {
-      toast.error('Please complete every field before sending.');
-      return;
-    }
-    toast.success('Message prepared. We will respond shortly.');
-    setForm({ name: '', email: '', subject: '', message: '' });
-  };
-
+export function ContactPage({ className = '' }: { className?: string }) {
   return (
-    <section className={cn('mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8', className)}>
-      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+    <main className={cn('bg-white text-[#1A1A1A]', className)}>
+      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.1fr_0.9fr] md:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55 }}
-          className="rounded-[18px] border border-[#D8DEE5] bg-[#F7F5F2] p-6 shadow-[0_18px_50px_rgba(34,34,34,0.08)]"
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className="min-w-0"
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#5E6670]">Contact</p>
-          <h1 className="mt-4 max-w-xl font-['Outfit'] text-4xl font-light tracking-tight text-[#222222] sm:text-5xl">
-            Let’s shape your next musical conversation.
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#5F6368]">Contact</p>
+          <h1 className="mt-4 max-w-2xl font-[Outfit] text-5xl font-light tracking-tight md:text-7xl">
+            Start a conversation around your next instrument.
           </h1>
-          <p className="mt-4 max-w-2xl font-['Open_Sans'] text-sm leading-7 text-[#5E6670] sm:text-base">
-            Reach out for instrument guidance, availability questions, or a curated recommendation. The drawer opens automatically on entry for a direct line to the studio.
+          <p className="mt-5 max-w-xl text-sm leading-7 text-[#5F6368] md:text-base">
+            Reach out for availability, custom guidance, studio sourcing, or a private recommendation. We respond with
+            focused, instrument-aware support.
           </p>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {[
               { icon: Mail, label: 'Email', value: 'hello@sursangeet.com' },
               { icon: Phone, label: 'Phone', value: '+91 98765 43210' },
-              { icon: MapPin, label: 'Studio', value: 'New Delhi, India' },
+              { icon: MapPin, label: 'Studio', value: 'Mumbai, India' },
+              { icon: Clock, label: 'Hours', value: 'Mon–Sat · 10:00–19:00' },
             ].map((item) => (
-              <div key={item.label} className="rounded-[18px] border border-[#D8DEE5] bg-white p-4">
+              <div key={item.label} className="rounded-[18px] border border-[#D8D4CC] bg-[#F4F1EB] p-4">
                 <item.icon className="h-5 w-5 text-[#E63946]" />
-                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">{item.label}</p>
-                <p className="mt-1 break-words text-sm font-medium text-[#222222]">{item.value}</p>
+                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.3em] text-[#5F6368]">{item.label}</p>
+                <p className="mt-1 break-words text-sm font-medium text-[#1A1A1A]">{item.value}</p>
               </div>
             ))}
           </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              to="/catalog"
+              className="inline-flex items-center gap-2 rounded-md bg-[#E63946] px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-black transition-colors hover:bg-[#C92D39]"
+            >
+              Explore Catalog <ArrowRight className="h-4 w-4" />
+            </Link>
+            <RequestInfoDrawer className="min-w-0" />
+          </div>
         </motion.div>
 
-        <motion.form
-          initial={{ opacity: 0, y: 18 }}
+        <motion.aside
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, delay: 0.08 }}
-          onSubmit={handleSubmit}
-          className="rounded-[18px] border border-[#D8DEE5] bg-white p-6 shadow-[0_18px_50px_rgba(34,34,34,0.08)]"
+          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+          className="min-w-0 rounded-[18px] border border-[#D8D4CC] bg-[#F4F1EB] p-5 md:p-6"
         >
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#5E6670]">Message</p>
-              <h2 className="mt-2 font-['Outfit'] text-2xl font-light tracking-tight text-[#222222]">Start the drawer</h2>
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#5F6368]">Response information</p>
+            <h2 className="font-[Outfit] text-2xl font-light tracking-tight">What happens after you reach out</h2>
+            <div className="space-y-3 text-sm leading-7 text-[#5F6368]">
+              <p>We review your inquiry, match it to the right instrument specialist, and reply with clear next steps.</p>
+              <p>For product-specific questions, include the instrument name or category so we can respond faster.</p>
+              <p>For studio or bulk sourcing, we can coordinate availability, recommendations, and delivery timing.</p>
             </div>
-            <div className={cn('h-3 w-3 rounded-full', open ? 'bg-[#E63946]' : 'bg-[#D8DEE5]')} />
           </div>
-
-          <div className="mt-6 grid gap-4">
-            {[
-              ['name', 'Your name'],
-              ['email', 'Email address'],
-              ['subject', 'Subject'],
-            ].map(([field, label]) => (
-              <label key={field} className="grid gap-2">
-                <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">{label}</span>
-                <input
-                  value={form[field as keyof typeof form]}
-                  onChange={(e) => handleChange(field as keyof typeof form, e.target.value)}
-                  className="w-full rounded-md border border-[#D8DEE5] bg-[#F7F5F2] px-4 py-3 text-sm text-[#222222] outline-none transition focus:border-[#E63946]"
-                />
-              </label>
-            ))}
-            <label className="grid gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">Message</span>
-              <textarea
-                rows={6}
-                value={form.message}
-                onChange={(e) => handleChange('message', e.target.value)}
-                className="w-full rounded-md border border-[#D8DEE5] bg-[#F7F5F2] px-4 py-3 text-sm text-[#222222] outline-none transition focus:border-[#E63946]"
-              />
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            className="mt-6 inline-flex items-center gap-2 rounded-md bg-[#E63946] px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-black transition hover:bg-[#C92836]"
-          >
-            <Send className="h-4 w-4" />
-            Send inquiry
-          </button>
-        </motion.form>
-      </div>
-    </section>
+        </motion.aside>
+      </section>
+    </main>
   );
 }
 

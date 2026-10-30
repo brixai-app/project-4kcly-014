@@ -1,72 +1,41 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { useInstruments } from '@/context/InstrumentContext';
-import CatalogControls from '@/components/CatalogControls';
-import InstrumentGrid from '@/components/InstrumentGrid';
-import type { InstrumentCategory } from '@/types';
+import CatalogExplorer from '@/components/CatalogExplorer';
+import { useShowcase } from '@/context/ShowcaseContext';
+import type { Instrument } from '@/types';
 
-export interface CatalogPageProps {
-  className?: string;
-}
-
-export function CatalogPage({ className = '' }: CatalogPageProps) {
-  const { instruments = [] } = useInstruments() ?? {};
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<InstrumentCategory | 'all'>('all');
-
-  const categories = useMemo(
-    () => ['all', ...Array.from(new Set(instruments.map((instrument) => instrument?.category).filter(Boolean)))],
-    [instruments]
-  );
-
-  const filteredInstruments = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return instruments.filter((instrument) => {
-      const matchesCategory = category === 'all' || instrument?.category === category;
-      const matchesSearch =
-        !query ||
-        [instrument?.name, instrument?.description, instrument?.category, ...(instrument?.tags ?? [])]
-          .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(query));
-      return matchesCategory && matchesSearch;
-    });
-  }, [instruments, search, category]);
-
-  const handleClear = () => {
-    setSearch('');
-    setCategory('all');
+export function CatalogPage({ className = '' }: { className?: string }) {
+  const { instruments, loading } = useShowcase() as {
+    instruments?: Instrument[];
+    loading?: boolean;
   };
 
   return (
-    <motion.section
-      className={`mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 ${className}`}
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: 'easeOut' }}
-    >
-      <div className="mb-6 flex flex-col gap-3 border-b border-[#D8DEE5] pb-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#5E6670]">Catalog</p>
-        <h1 className="max-w-3xl text-4xl font-light tracking-tight text-[#222222] sm:text-5xl">
-          A living index of instruments shaped by tone, craft, and presence.
-        </h1>
-        <p className="max-w-2xl text-sm leading-6 text-[#5E6670] sm:text-base">
-          Refine by category or search by name, material, and description to explore the current collection.
-        </p>
-      </div>
+    <main className={className}>
+      <section className="border-b border-[#D8D4CC] bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="max-w-3xl"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#5F6368]">
+              Catalog
+            </p>
+            <h1 className="mt-4 font-['Outfit',sans-serif] text-4xl font-light tracking-tight text-[#1A1A1A] sm:text-5xl lg:text-6xl">
+              Explore instruments shaped by tone, texture, and rhythm.
+            </h1>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5F6368] sm:text-base">
+              Browse a curated collection of strings, percussion, wind, keyboard, electronic, and accessory pieces with
+              a refined editorial flow and responsive filtering.
+            </p>
+          </motion.div>
+        </div>
+      </section>
 
-      <div className="space-y-6">
-        <CatalogControls
-          search={search}
-          category={category}
-          resultCount={filteredInstruments.length}
-          categories={categories}
-          onSearchChange={setSearch}
-          onCategoryChange={setCategory}
-          onClear={handleClear}
-        />
-        <InstrumentGrid instruments={filteredInstruments} />
-      </div>
-    </motion.section>
+      <CatalogExplorer items={instruments ?? []} loading={loading ?? false} />
+    </main>
   );
 }
 

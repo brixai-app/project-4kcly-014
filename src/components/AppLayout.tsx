@@ -1,231 +1,161 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X, ShoppingBag, ChevronDown, Home, Search, Settings, User, Mail, Phone, MapPin, Globe2 } from 'lucide-react';
-import * as Dialog from '@radix-ui/react-dialog';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, Search, ShoppingBag, User, X, ArrowRight, Mail, Phone, MapPin, Instagram, Youtube, Facebook, Linkedin } from 'lucide-react';
+import { Toaster } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { categories } from '@/data/mockData';
+import { useShowcase } from '@/context/ShowcaseContext';
+import NavigationDrawer from '@/components/NavigationDrawer';
+import RequestInfoDrawer from '@/components/RequestInfoDrawer';
 
-type AppLayoutProps = {
-  className?: string;
-};
-
-const navItems = [
-  { to: '/', label: 'Home', icon: Home },
-  { to: '/catalog', label: 'Catalog', icon: Search },
-  { to: '/about', label: 'About', icon: Globe2 },
-  { to: '/contact', label: 'Contact', icon: Mail },
-];
-
-export function AppLayout({ className = '' }: AppLayoutProps) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState(false);
+export function AppLayout({ children }: { children?: React.ReactNode }) {
   const location = useLocation();
+  const { navigationState, setNavigationState, setSearch, search } = useShowcase() ?? {};
+  const isDrawerOpen = navigationState?.isDrawerOpen ?? false;
+  const activeInstrumentId = navigationState?.activeInstrumentId ?? null;
 
-  useEffect(() => {
-    setMobileOpen(false);
-    setCategoryOpen(false);
-  }, [location.pathname]);
+  const navItems = [
+    { to: '/', label: 'Home' },
+    { to: '/catalog', label: 'Catalog' },
+    { to: '/about', label: 'About' },
+    { to: '/contact', label: 'Contact' },
+  ];
 
-  const categoryLinks = useMemo(
-    () =>
-      (categories ?? []).map((category) => ({
-        label: category,
-        to: `/catalog?category=${encodeURIComponent(category)}`,
-      })),
-    []
-  );
+  const closeDrawer = () => setNavigationState?.({ ...(navigationState ?? {}), isDrawerOpen: false, activeInstrumentId: null });
+  const openDrawer = () => setNavigationState?.({ ...(navigationState ?? {}), isDrawerOpen: true });
 
   return (
-    <div className={cn('min-h-screen bg-white text-[#18222C]', className)}>
-      <header className="sticky top-0 z-50 border-b border-[#D7DDE3]/80 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
-              <Dialog.Trigger asChild>
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center border border-[#D7DDE3] text-[#18222C] transition hover:border-[#D32F2F] hover:text-[#D32F2F] lg:hidden"
-                  aria-label="Open navigation menu"
-                >
-                  <Menu className="h-5 w-5" />
-                </button>
-              </Dialog.Trigger>
-              <Dialog.Portal>
-                <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-                <Dialog.Content className="fixed inset-y-0 left-0 z-50 w-[88vw] max-w-sm border-r border-[#D7DDE3] bg-white p-5 shadow-2xl outline-none">
-                  <div className="flex items-center justify-between">
-                    <Link to="/" className="text-lg font-semibold tracking-[0.2em] text-[#18222C]">
-                      SURSANGEET
-                    </Link>
-                    <Dialog.Close asChild>
-                      <button type="button" className="inline-flex h-10 w-10 items-center justify-center border border-[#D7DDE3]">
-                        <X className="h-5 w-5" />
-                      </button>
-                    </Dialog.Close>
-                  </div>
-                  <nav className="mt-8 space-y-2">
-                    {navItems.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <NavLink
-                          key={item.to}
-                          to={item.to}
-                          className={({ isActive }) =>
-                            cn(
-                              'flex items-center justify-between border-b border-[#D7DDE3] py-3 text-sm font-semibold uppercase tracking-[0.2em] transition',
-                              isActive ? 'text-[#D32F2F]' : 'text-[#18222C]'
-                            )
-                          }
-                        >
-                          <span>{item.label}</span>
-                          <Icon className="h-4 w-4" />
-                        </NavLink>
-                      );
-                    })}
-                  </nav>
-                  <div className="mt-8 border-t border-[#D7DDE3] pt-6">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5F6B76]">Categories</p>
-                    <div className="mt-3 grid gap-2">
-                      {categoryLinks.map((item) => (
-                        <Link key={item.label} to={item.to} className="text-sm text-[#18222C] transition hover:text-[#D32F2F]">
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </Dialog.Content>
-              </Dialog.Portal>
-            </Dialog.Root>
+    <div className="min-h-screen bg-white text-[#1A1A1A]">
+      <header className="sticky top-0 z-40 border-b border-[#D8D4CC]/80 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+          <button
+            type="button"
+            onClick={openDrawer}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-[#D8D4CC] bg-[#F4F1EB] text-[#1A1A1A] transition hover:border-[#E63946] hover:text-[#E63946] lg:hidden"
+            aria-label="Open navigation"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
 
-            <Link to="/" className="text-lg font-semibold tracking-[0.28em] text-[#18222C]">
-              SURSANGEET
-            </Link>
-          </div>
+          <Link to="/" className="min-w-0 flex-1 lg:flex-none">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#1A1A1A] text-white">
+                <span className="text-sm font-semibold tracking-[0.25em]">SS</span>
+              </div>
+              <div className="min-w-0">
+                <div className="truncate font-[Outfit,sans-serif] text-lg font-semibold tracking-tight">SurSangeet</div>
+                <div className="truncate text-[11px] uppercase tracking-[0.28em] text-[#5F6368]">Musical instrument showcase</div>
+              </div>
+            </div>
+          </Link>
 
           <nav className="hidden items-center gap-1 lg:flex">
             {navItems.map((item) => (
-              <NavLink
+              <Link
                 key={item.to}
                 to={item.to}
-                className={({ isActive }) =>
-                  cn(
-                    'px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] transition',
-                    isActive ? 'text-[#D32F2F]' : 'text-[#18222C] hover:text-[#D32F2F]'
-                  )
-                }
+                className={cn(
+                  'rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] transition',
+                  location.pathname === item.to ? 'bg-[#1A1A1A] text-white' : 'text-[#5F6368] hover:bg-[#F4F1EB] hover:text-[#1A1A1A]'
+                )}
               >
                 {item.label}
-              </NavLink>
+              </Link>
             ))}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setCategoryOpen((v) => !v)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#18222C] transition hover:text-[#D32F2F]"
-                aria-expanded={categoryOpen}
-                aria-haspopup="menu"
-              >
-                Categories
-                <ChevronDown className="h-4 w-4" />
-              </button>
-              <AnimatePresence>
-                {categoryOpen ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.18 }}
-                    className="absolute right-0 top-full mt-2 w-56 border border-[#D7DDE3] bg-white p-2 shadow-lg"
-                  >
-                    {categoryLinks.map((item) => (
-                      <Link
-                        key={item.label}
-                        to={item.to}
-                        className="block px-3 py-2 text-sm text-[#18222C] transition hover:bg-[#F5F5F5] hover:text-[#D32F2F]"
-                        onClick={() => setCategoryOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-            </div>
           </nav>
 
-          <div className="flex items-center gap-2">
-            <Link
-              to="/contact"
-              className="hidden items-center gap-2 border border-[#D7DDE3] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#18222C] transition hover:border-[#D32F2F] hover:text-[#D32F2F] sm:inline-flex"
-            >
-              <Phone className="h-4 w-4" />
-              Contact
-            </Link>
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+            <div className="hidden max-w-[18rem] flex-1 items-center gap-2 rounded-md border border-[#D8D4CC] bg-[#F4F1EB] px-3 py-2 md:flex">
+              <Search className="h-4 w-4 shrink-0 text-[#5F6368]" />
+              <input
+                value={search ?? ''}
+                onChange={(e) => setSearch?.(e.target.value)}
+                placeholder="Search instruments"
+                className="w-full bg-transparent text-sm outline-none placeholder:text-[#5F6368]"
+              />
+            </div>
+
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center border border-[#D7DDE3] text-[#18222C] transition hover:border-[#D32F2F] hover:text-[#D32F2F]"
-              aria-label="Open settings"
+              onClick={openDrawer}
+              className="inline-flex h-11 items-center gap-2 rounded-md border border-[#D8D4CC] bg-white px-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#1A1A1A] transition hover:border-[#E63946] hover:text-[#E63946]"
             >
-              <Settings className="h-5 w-5" />
+              <Search className="h-4 w-4" />
+              <span className="hidden sm:inline">Explore</span>
             </button>
+
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center border border-[#D7DDE3] text-[#18222C] transition hover:border-[#D32F2F] hover:text-[#D32F2F]"
-              aria-label="Open account"
+              onClick={openDrawer}
+              className="inline-flex h-11 items-center gap-2 rounded-md bg-[#E63946] px-3 text-xs font-semibold uppercase tracking-[0.22em] text-black transition hover:bg-[#C92D39]"
+              aria-label="Open inquiry drawer"
             >
-              <User className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              className="inline-flex h-10 w-10 items-center justify-center border border-[#D7DDE3] text-[#18222C] transition hover:border-[#D32F2F] hover:text-[#D32F2F]"
-              aria-label="Open saved items"
-            >
-              <ShoppingBag className="h-5 w-5" />
+              <User className="h-4 w-4" />
+              <span className="hidden sm:inline">Inquire</span>
             </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <Outlet />
-      </main>
+      <main className="relative">{children}</main>
 
-      <footer className="border-t border-[#D7DDE3] bg-[#F5F5F5]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-3 lg:px-8">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#18222C]">SurSangeet</p>
-            <p className="mt-3 max-w-sm text-sm leading-6 text-[#5F6B76]">
-              A tactile catalog of instruments shaped by craft, resonance, and balanced editorial calm.
+      <footer className="border-t border-[#D8D4CC] bg-[#F4F1EB]">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
+          <div className="space-y-4">
+            <div className="font-[Outfit,sans-serif] text-2xl font-light tracking-tight">SurSangeet</div>
+            <p className="max-w-md text-sm leading-6 text-[#5F6368]">
+              An editorial instrument house shaped by rhythm, materiality, and precise craft.
             </p>
-          </div>
-          <div className="grid gap-2 text-sm text-[#18222C]">
-            <Link to="/catalog" className="transition hover:text-[#D32F2F]">
-              Browse catalog
-            </Link>
-            <Link to="/about" className="transition hover:text-[#D32F2F]">
-              Our story
-            </Link>
-            <Link to="/contact" className="transition hover:text-[#D32F2F]">
-              Contact
-            </Link>
-          </div>
-          <div className="grid gap-2 text-sm text-[#5F6B76]">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              <span>Studio showroom, India</span>
+            <div className="flex flex-wrap gap-3 text-[#5F6368]">
+              <a href="mailto:hello@sursangeet.com" className="inline-flex items-center gap-2 text-sm transition hover:text-[#E63946]">
+                <Mail className="h-4 w-4" /> hello@sursangeet.com
+              </a>
+              <a href="tel:+911234567890" className="inline-flex items-center gap-2 text-sm transition hover:text-[#E63946]">
+                <Phone className="h-4 w-4" /> +91 12345 67890
+              </a>
             </div>
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              <span>hello@sursangeet.com</span>
+          </div>
+
+          <div className="space-y-3">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[#5F6368]">Visit</div>
+            <div className="space-y-2 text-sm text-[#1A1A1A]">
+              <div className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E63946]" />
+                <span className="max-w-xs">Studio 12, Rhythm House, New Delhi, India</span>
+              </div>
+              <div className="flex items-center gap-2 text-[#5F6368]">
+                <ArrowRight className="h-4 w-4 text-[#E63946]" />
+                <span>Appointments and instrument consultations by request.</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              <span>+91 98765 43210</span>
+          </div>
+
+          <div className="space-y-3">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-[#5F6368]">Follow</div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { icon: Instagram, label: 'Instagram' },
+                { icon: Youtube, label: 'YouTube' },
+                { icon: Facebook, label: 'Facebook' },
+                { icon: Linkedin, label: 'LinkedIn' },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href="/"
+                  className="inline-flex items-center gap-2 rounded-md border border-[#D8D4CC] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#1A1A1A] transition hover:border-[#E63946] hover:text-[#E63946]"
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </a>
+              ))}
             </div>
           </div>
         </div>
       </footer>
+
+      <NavigationDrawer open={isDrawerOpen} onOpenChange={(open) => setNavigationState?.({ ...(navigationState ?? {}), isDrawerOpen: open })} />
+      <RequestInfoDrawer open={Boolean(activeInstrumentId)} onOpenChange={(open) => !open && closeDrawer()} instrumentId={activeInstrumentId ?? undefined} />
+      <Toaster position="top-right" richColors closeButton />
     </div>
   );
 }
