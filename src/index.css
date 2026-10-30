@@ -5,24 +5,24 @@
 :root {
   --color-bg: #FFFFFF;
   --color-bg-rgb: 255, 255, 255;
-  --color-surface: #F4F1EB;
-  --color-surface-rgb: 244, 241, 235;
-  --color-surface-hover: #E6F3F0;
-  --color-surface-hover-rgb: 230, 243, 240;
-  --color-border: #D8D4CC;
-  --color-border-rgb: 216, 212, 204;
-  --color-text-primary: #1A1A1A;
-  --color-text-primary-rgb: 26, 26, 26;
-  --color-text-muted: #5F6368;
-  --color-text-muted-rgb: 95, 99, 104;
+  --color-surface: #F7F8F6;
+  --color-surface-rgb: 247, 248, 246;
+  --color-surface-hover: #E8F5F2;
+  --color-surface-hover-rgb: 232, 245, 242;
+  --color-border: #CAD5D7;
+  --color-border-rgb: 202, 213, 215;
+  --color-text-primary: #000000;
+  --color-text-primary-rgb: 0, 0, 0;
+  --color-text-muted: #526166;
+  --color-text-muted-rgb: 82, 97, 102;
   --color-accent: #E63946;
   --color-accent-rgb: 230, 57, 70;
-  --color-accent-hover: #C92D39;
-  --color-accent-hover-rgb: 201, 45, 57;
+  --color-accent-hover: #C92532;
+  --color-accent-hover-rgb: 201, 37, 50;
   --color-accent-text: #000000;
-  --radius-theme: 18px;
+  --radius-theme: 16px;
   --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Roboto', sans-serif;
+  --font-body: 'Open Sans', sans-serif;
 }
 
 @layer base {

@@ -1,20 +1,8 @@
-export type InstrumentCategory =
-  | 'Strings'
-  | 'Percussion'
-  | 'Wind'
-  | 'Keyboard'
-  | 'Electronic'
-  | 'Accessories';
+export type InstrumentCategory = "Strings" | "Percussion" | "Wind" | "Keyboard";
 
-export interface InstrumentSpecs {
-  origin?: string;
-  material?: string;
-  dimensions?: string;
-  weight?: string;
-  finish?: string;
-  includedAccessories?: string[];
-  tuning?: string;
-  power?: string;
+export interface Specification {
+  label: string;
+  value: string;
 }
 
 export interface Instrument {
@@ -22,42 +10,48 @@ export interface Instrument {
   name: string;
   category: InstrumentCategory;
   price: number;
-  image: string;
   description: string;
-  featured?: boolean;
-  inStock?: boolean;
-  rating?: number;
-  reviewCount?: number;
-  tags?: string[];
-  specs?: InstrumentSpecs;
+  image: string;
+  shortDescription?: string;
+  detailedDescription?: string;
+  specificationsJson?: string;
+  relatedIdsJson?: string;
 }
 
-export interface ContactInquiry {
+export interface TeamMember {
+  name: string;
+  role: string;
+  bio: string;
+  image: string;
+}
+
+export interface TimelineMilestone {
+  year: string;
+  title: string;
+  description: string;
+}
+
+export interface ContactFormValues {
   name: string;
   email: string;
-  phone?: string;
-  instrumentId?: string;
   subject: string;
   message: string;
-  preferredContact?: 'email' | 'phone' | 'whatsapp';
 }
 
-export interface ValidationError {
-  field: string;
-  message: string;
+export interface ContactFormErrors {
+  name?: string;
+  email?: string;
+  subject?: string;
+  message?: string;
 }
 
-export interface FilterState {
-  search: string;
-  category: InstrumentCategory | 'All';
-  sortBy?: 'featured' | 'price-asc' | 'price-desc' | 'rating';
-  inStockOnly?: boolean;
+export interface ContactSubmissionState {
+  values: ContactFormValues;
+  errors: ContactFormErrors;
+  isSubmitting: boolean;
+  isSubmitted: boolean;
 }
 
-export interface NavigationState {
-  isDrawerOpen: boolean;
-  activeInstrumentId?: string | null;
-  lastVisitedPath?: string;
-}
+export type AppRoute = "/" | "/catalog" | "/about" | "/contact" | "/product/:id";
 
 export default Instrument;

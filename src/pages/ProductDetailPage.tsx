@@ -1,49 +1,44 @@
-import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React from "react";
+import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, AlertCircle } from 'lucide-react';
-import { useInstruments } from '@/context/InstrumentContext';
-import InstrumentDetail from '@/components/InstrumentDetail';
-import { cn } from '@/lib/utils';
+import ProductExperience from "@/components/ProductExperience";
+import { instruments } from "@/data/mockData";
 
-export interface ProductDetailPageProps {
-  className?: string;
-}
-
-export function ProductDetailPage({ className = '' }: ProductDetailPageProps) {
+export function ProductDetailPage() {
   const { id } = useParams<{ id?: string }>();
-  const { instruments = [] } = useInstruments?.() ?? {};
-  const instrument = instruments?.find?.((item) => item?.id === id) ?? null;
+  const instrument = instruments?.find((item) => item?.id === id);
 
-  return (
-    <main className={cn('mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8', className)}>
-      {instrument ? (
-        <InstrumentDetail instrument={instrument} />
-      ) : (
-        <section className="rounded-[18px] border border-[#D8DEE5] bg-white p-6 shadow-[0_18px_50px_rgba(34,34,34,0.06)]">
-          <div className="flex flex-col gap-6">
-            <Link
-              to="/catalog"
-              className="inline-flex w-fit items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670] transition-colors hover:text-[#E63946]"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to catalog
-            </Link>
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F7F5F2] text-[#E63946]">
-                <AlertCircle className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-3xl font-light tracking-tight text-[#222222]">Instrument not found</h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5E6670]">
-                  The requested instrument could not be resolved from the current collection. Please return to the catalog and choose another piece.
-                </p>
-              </div>
+  if (!instrument) {
+    return (
+      <main className="mx-auto flex min-h-[70vh] w-full max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8">
+        <div className="w-full rounded-[16px] border border-[#CAD5D7] bg-white p-8 shadow-sm">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-[#F7F8F6]">
+              <AlertCircle className="h-5 w-5 text-[#E63946]" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#526166]">Instrument not found</p>
+              <h1 className="mt-2 font-['Outfit',sans-serif] text-3xl font-light tracking-tight text-black sm:text-4xl">
+                This instrument is unavailable.
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#526166]">
+                The requested product could not be resolved from the centralized catalog data.
+              </p>
+              <Link
+                to="/catalog"
+                className="mt-6 inline-flex items-center gap-2 rounded-md bg-[#E63946] px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-black transition-colors hover:bg-[#C92532]"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to catalog
+              </Link>
             </div>
           </div>
-        </section>
-      )}
-    </main>
-  );
+        </div>
+      </main>
+    );
+  }
+
+  return <ProductExperience instrumentId={instrument?.id ?? ""} className="w-full" />;
 }
 
 export default ProductDetailPage;

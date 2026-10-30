@@ -1,110 +1,119 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Compass, Mail, Sparkles } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { motion } from "framer-motion";
+import { ArrowRight, Calendar, Globe2, Sparkles } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { instruments } from "@/data/mockData";
 
-type HeroBannerProps = {
-  className?: string;
-};
-
-export function HeroBanner({ className = '' }: HeroBannerProps) {
-  const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 500], [0, 70]);
-  const y2 = useTransform(scrollY, [0, 500], [0, -40]);
-  const y3 = useTransform(scrollY, [0, 500], [0, 24]);
+export function HeroBanner({ className = "" }: { className?: string }) {
+  const featured = instruments?.[0];
+  const secondary = instruments?.[5];
+  const tertiary = instruments?.[7];
+  const heroImage = featured?.image ?? "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1400&q=85";
 
   return (
-    <section className={cn('relative isolate overflow-hidden bg-white', className)}>
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,#ffffff_0%,#faf9f6_55%,#ffffff_100%)]" />
-      <div className="mx-auto grid min-h-[92vh] max-w-7xl items-stretch lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="relative z-10 flex flex-col justify-end px-5 py-10 sm:px-8 lg:px-10 lg:py-14">
-          <motion.div style={{ y: y1 }} className="max-w-xl">
-            <div className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.35em] text-[#5F6368]">
-              <span className="h-px w-10 bg-[#E63946]" />
-              SurSangeet
+    <section className={cn("relative overflow-hidden bg-white", className)}>
+      <div className="mx-auto grid min-h-[92vh] max-w-7xl lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="relative flex min-h-[56vh] items-end bg-[#0a0a0a] lg:min-h-[92vh]">
+          <img
+            src={heroImage}
+            alt={featured?.name ?? "Featured instrument"}
+            crossOrigin="anonymous"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/10" />
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="relative z-10 w-full p-6 sm:p-10 lg:p-14"
+          >
+            <div className="mb-6 flex items-center gap-3 text-white/90">
+              <span className="h-12 w-1 bg-[#E63946]" />
+              <span className="text-xs font-semibold uppercase tracking-[0.35em]">SurSangeet Editorial Showcase</span>
             </div>
-            <h1 className="max-w-lg font-['Outfit',sans-serif] text-5xl font-light tracking-tight text-[#1A1A1A] sm:text-6xl lg:text-7xl">
-              Instruments staged like a live score.
+            <h1 className="max-w-2xl font-[Outfit] text-5xl font-light uppercase tracking-tight text-white sm:text-6xl lg:text-7xl">
+              Instruments that
+              <span className="block text-[#E63946]">resonate in light</span>
             </h1>
-            <p className="mt-6 max-w-md text-sm leading-7 text-[#5F6368] sm:text-base">
-              Explore handcrafted strings, resonant percussion, and expressive electronic pieces through an editorial catalog shaped by rhythm, texture, and motion.
+            <p className="mt-6 max-w-xl text-sm leading-7 text-white/80 sm:text-base">
+              A vivid musical journal of strings, percussion, wind, and keyboard voices shaped by saturated color, tactile materials, and a gallery-first composition.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to="/catalog"
-                className="inline-flex items-center gap-2 rounded-md bg-[#E63946] px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-black transition-colors hover:bg-[#C92D39]"
+                className="inline-flex items-center gap-2 bg-[#E63946] px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-black transition-colors hover:bg-[#C92532]"
               >
-                Explore Collection
-                <ArrowRight size={16} />
+                Explore Collection <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 rounded-md border border-[#D8D4CC] bg-white px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#1A1A1A] transition-colors hover:border-[#1A1A1A]"
+                className="inline-flex items-center gap-2 border border-white/30 bg-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white backdrop-blur-sm transition-colors hover:bg-white/20"
               >
-                <Mail size={16} />
-                Inquiry
+                Contact Studio
               </Link>
             </div>
           </motion.div>
-
-          <motion.div
-            style={{ y: y3 }}
-            className="mt-10 grid max-w-xl gap-3 border-t border-[#D8D4CC] pt-6 sm:grid-cols-3"
-          >
-            {[
-              ['Curated', 'Editorial instrument stories'],
-              ['Responsive', 'Parallax and motion-led flow'],
-              ['Accessible', 'Inquiry-first navigation'],
-            ].map(([title, copy]) => (
-              <div key={title} className="min-w-0">
-                <div className="text-xs font-semibold uppercase tracking-[0.28em] text-[#1A1A1A]">{title}</div>
-                <div className="mt-2 text-sm leading-6 text-[#5F6368]">{copy}</div>
-              </div>
-            ))}
-          </motion.div>
         </div>
 
-        <div className="relative min-h-[72vh] lg:min-h-[92vh]">
-          <motion.div style={{ y: y2 }} className="absolute inset-0">
-            <img
-              src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80"
-              alt="Editorial close-up of a musical instrument"
-              crossOrigin="anonymous"
-              className="h-full w-full object-cover object-center"
-            />
-          </motion.div>
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0)_28%,rgba(0,0,0,0.18)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.92)_100%)]" />
-          <motion.div
-            style={{ y: y1 }}
-            className="absolute left-4 top-8 max-w-[18rem] rounded-none border border-white/30 bg-[#1A1A1A]/80 p-4 text-white shadow-2xl backdrop-blur-md sm:left-8 sm:top-10"
-          >
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
-              <Sparkles size={14} className="text-[#E63946]" />
-              Featured Drop
-            </div>
-            <div className="mt-3 text-2xl font-light tracking-tight">Resonance in motion</div>
-            <p className="mt-2 text-sm leading-6 text-white/75">
-              A tactile selection of instruments with sculptural silhouettes and studio-grade presence.
-            </p>
-          </motion.div>
-          <motion.div
-            style={{ y: y3 }}
-            className="absolute right-4 top-1/2 hidden -translate-y-1/2 flex-col gap-3 lg:flex"
-          >
-            <div className="h-24 w-24 rounded-full border border-[#D8D4CC] bg-white/80 p-3 shadow-lg backdrop-blur-md">
-              <div className="flex h-full w-full items-center justify-center rounded-full border border-[#E63946] text-[#E63946]">
-                <Compass size={22} />
+        <div className="relative flex flex-col justify-between bg-white px-6 py-8 sm:px-10 lg:px-12 lg:py-14">
+          <div className="absolute left-0 top-0 h-full w-px bg-[#CAD5D7]" />
+          <div className="space-y-8">
+            <div className="max-w-md">
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#526166]">Featured voices</p>
+              <div className="mt-4 space-y-4">
+                {[
+                  { label: featured?.category ?? "Strings", title: featured?.name ?? "Kala Concert Mahogany Ukulele", copy: featured?.description ?? "Warm, responsive, and intimate." },
+                  { label: secondary?.category ?? "Strings", title: secondary?.name ?? "Ravi Shankar Style Concert Sitar", copy: secondary?.description ?? "Deep sustain and shimmering harmonic field." },
+                  { label: tertiary?.category ?? "Keyboard", title: tertiary?.name ?? "Paloma Scale-Changer Harmonium", copy: tertiary?.description ?? "Portable reeds with a rich sustaining voice." },
+                ].map((item) => (
+                  <motion.div
+                    key={item.title}
+                    whileHover={{ x: 6 }}
+                    className="border-b border-[#CAD5D7] pb-4"
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#E63946]">{item.label}</p>
+                    <h2 className="mt-2 font-[Outfit] text-xl uppercase tracking-tight text-black">{item.title}</h2>
+                    <p className="mt-2 text-sm leading-6 text-[#526166]">{item.copy}</p>
+                  </motion.div>
+                ))}
               </div>
             </div>
-            <div className="h-1 w-24 bg-[#E63946]" />
-            <div className="h-24 w-24 rounded-full border border-[#D8D4CC] bg-white/80 p-3 shadow-lg backdrop-blur-md">
-              <div className="flex h-full w-full items-center justify-center rounded-full border border-[#1A1A1A] text-[#1A1A1A]">
-                <ArrowRight size={22} />
-              </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[
+                { icon: Sparkles, title: "Editorial glow" },
+                { icon: Globe2, title: "Responsive layout" },
+                { icon: Calendar, title: "Curated drops" },
+              ].map((item) => (
+                <div key={item.title} className="flex min-w-0 items-center gap-3 border border-[#CAD5D7] bg-[#F7F8F6] p-4">
+                  <item.icon className="h-4 w-4 shrink-0 text-[#E63946]" />
+                  <span className="min-w-0 truncate text-xs font-semibold uppercase tracking-[0.25em] text-black">{item.title}</span>
+                </div>
+              ))}
             </div>
-          </motion.div>
+          </div>
+
+          <div className="mt-10 grid gap-4 border-t border-[#CAD5D7] pt-6 sm:grid-cols-[1.1fr_0.9fr]">
+            <div className="relative overflow-hidden bg-[#F7F8F6] p-4">
+              <img
+                src={secondary?.image ?? "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80"}
+                alt={secondary?.name ?? "Featured instrument detail"}
+                crossOrigin="anonymous"
+                className="h-44 w-full object-cover object-center"
+              />
+            </div>
+            <div className="flex flex-col justify-between border border-[#CAD5D7] p-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#526166]">Craft statement</p>
+                <p className="mt-3 text-sm leading-7 text-[#526166]">
+                  SurSangeet frames each instrument as a living artifact: precise, luminous, and ready for performance, practice, or display.
+                </p>
+              </div>
+              <Link to="/about" className="mt-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-black">
+                Read the story <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </section>

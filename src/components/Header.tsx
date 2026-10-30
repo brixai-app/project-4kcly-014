@@ -1,82 +1,113 @@
-import { useMemo, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import * as Dialog from '@radix-ui/react-dialog';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X, ShoppingBag, Phone, ChevronRight, Home, BookOpen, Camera, Mail, ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { navigationLinks } from '@/data/mockData';
-import { useShowcase } from '@/context/ShowcaseContext';
+import { useMemo, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import * as Dialog from "@radix-ui/react-dialog";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { Menu, X, ChevronDown, ShoppingBag, Search, Home, Store, Users, Mail } from 'lucide-react';
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { categories, navigation } from "@/data/mockData";
+import type { InstrumentCategory } from "@/types";
 
-export interface HeaderProps {
-  className?: string;
-}
+type HeaderProps = { className?: string };
 
-export function Header({ className = '' }: HeaderProps) {
-  const [open, setOpen] = useState(false);
+const categoryIcons: Record<InstrumentCategory, typeof Store> = {
+  Strings: Store,
+  Percussion: Users,
+  Wind: Search,
+  Keyboard: Home,
+};
+
+export function Header({ className = "" }: HeaderProps) {
   const location = useLocation();
-  const { openContactDrawer } = useShowcase?.() ?? { openContactDrawer: () => {} };
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const links = useMemo(
-    () =>
-      (navigationLinks ?? []).map((link) => ({
-        ...link,
-        icon:
-          link?.label === 'Home' ? Home : link?.label === 'Catalog' ? BookOpen : link?.label === 'About' ? Camera : Mail,
-      })),
+  const navItems = useMemo(
+    () => navigation ?? [
+      { label: "Home", href: "/" },
+      { label: "Catalog", href: "/catalog" },
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" },
+    ],
     []
   );
 
-  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    cn(
-      'text-xs uppercase tracking-[0.28em] transition-colors duration-200 min-w-0 truncate',
-      isActive ? 'text-[#F1FAEE]' : 'text-[#A8DADC] hover:text-[#F1FAEE]'
-    );
+  const isActive = (href: string) => (href === "/" ? location.pathname === "/" : location.pathname.startsWith(href));
 
   return (
-    <header className={cn('sticky top-0 z-50 border-b border-[#457B9D]/40 bg-[#1D1D1D]/92 backdrop-blur-xl', className)}>
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
-        <Link to="/" className="group flex min-w-0 items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[18px] border border-[#457B9D]/60 bg-[#25282B] text-[#E63946] shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
-            <span className="text-sm font-semibold tracking-[0.3em]">SS</span>
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate font-[Outfit] text-lg font-light tracking-[0.28em] text-[#F1FAEE]">
-              SurSangeet
-            </span>
-            <span className="block truncate text-[10px] uppercase tracking-[0.32em] text-[#A8DADC]">
-              Concert-stage showcase
-            </span>
-          </span>
+    <header className={cn("sticky top-0 z-50 border-b border-[#CAD5D7] bg-white/90 backdrop-blur-xl", className)}>
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+        <Link to="/" className="min-w-0 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#E63946] text-sm font-semibold text-black shadow-[0_10px_30px_rgba(230,57,70,0.22)]">
+              SS
+            </div>
+            <div className="min-w-0">
+              <div className="truncate font-['Outfit'] text-lg font-semibold uppercase tracking-[0.22em] text-black">
+                SurSangeet
+              </div>
+              <div className="truncate text-[11px] uppercase tracking-[0.28em] text-[#526166]">
+                Musical instrument showcase
+              </div>
+            </div>
+          </div>
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex">
-          {links.map((link) => {
-            const Icon = link?.icon ?? Home;
-            return (
-              <NavLink key={link?.label ?? link?.href ?? crypto.randomUUID()} to={link?.href ?? '/'} className={navLinkClass}>
-                <span className="inline-flex items-center gap-2">
-                  <Icon className="h-4 w-4" />
-                  <span>{link?.label ?? 'Link'}</span>
-                </span>
-              </NavLink>
-            );
-          })}
+        <nav className="hidden items-center gap-2 lg:flex">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] transition-colors",
+                isActive(item.href) ? "bg-[#F7F8F6] text-black" : "text-[#526166] hover:bg-[#F7F8F6] hover:text-black"
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button className="inline-flex items-center gap-1 rounded-md border border-[#CAD5D7] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-black transition-colors hover:bg-[#F7F8F6]">
+                Categories <ChevronDown className="h-4 w-4" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                align="end"
+                sideOffset={10}
+                className="z-50 min-w-56 rounded-md border border-[#CAD5D7] bg-white p-2 shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+              >
+                {categories.map((category) => {
+                  const Icon = categoryIcons[category];
+                  return (
+                    <DropdownMenu.Item key={category} asChild>
+                      <Link
+                        to="/catalog"
+                        className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-black outline-none transition-colors hover:bg-[#F7F8F6] focus:bg-[#F7F8F6]"
+                      >
+                        <Icon className="h-4 w-4 text-[#E63946]" />
+                        <span className="min-w-0 truncate">{category}</span>
+                      </Link>
+                    </DropdownMenu.Item>
+                  );
+                })}
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </nav>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => openContactDrawer?.()}
-            className="hidden items-center gap-2 border border-[#E63946] bg-[#E63946] px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-black transition-colors hover:bg-[#C92F3C] md:inline-flex"
+          <Link
+            to="/contact"
+            className="hidden rounded-md border border-[#CAD5D7] px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-black transition-colors hover:bg-[#F7F8F6] sm:inline-flex"
           >
-            <Phone className="h-4 w-4" />
+            <Mail className="mr-2 h-4 w-4" />
             Contact
-          </button>
-
+          </Link>
           <button
             type="button"
-            onClick={() => setOpen(true)}
-            className="inline-flex h-11 w-11 items-center justify-center border border-[#457B9D]/60 bg-[#25282B] text-[#F1FAEE] transition-colors hover:border-[#E63946] hover:text-[#E63946] lg:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#CAD5D7] bg-white text-black transition-colors hover:bg-[#F7F8F6] lg:hidden"
+            onClick={() => setMobileOpen(true)}
             aria-label="Open navigation menu"
           >
             <Menu className="h-5 w-5" />
@@ -84,98 +115,72 @@ export function Header({ className = '' }: HeaderProps) {
         </div>
       </div>
 
-      <Dialog.Root open={open} onOpenChange={setOpen}>
-        <AnimatePresence>
-          {open ? (
-            <Dialog.Portal forceMount>
-              <Dialog.Overlay asChild>
-                <motion.div
-                  className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                />
-              </Dialog.Overlay>
-              <Dialog.Content asChild>
-                <motion.div
-                  className="fixed right-0 top-0 z-50 h-full w-[min(92vw,380px)] border-l border-[#457B9D]/40 bg-[#1D1D1D] shadow-[0_30px_80px_rgba(0,0,0,0.55)]"
-                  initial={{ x: '100%' }}
-                  animate={{ x: 0 }}
-                  exit={{ x: '100%' }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+      <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]" />
+          <Dialog.Content className="fixed right-0 top-0 z-50 h-full w-[min(92vw,22rem)] border-l border-[#CAD5D7] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.18)] focus:outline-none">
+            <div className="flex items-center justify-between border-b border-[#CAD5D7] px-4 py-4">
+              <div className="min-w-0">
+                <div className="truncate font-['Outfit'] text-base font-semibold uppercase tracking-[0.22em] text-black">
+                  SurSangeet
+                </div>
+                <div className="truncate text-[11px] uppercase tracking-[0.28em] text-[#526166]">
+                  Navigation
+                </div>
+              </div>
+              <Dialog.Close asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#CAD5D7] text-black transition-colors hover:bg-[#F7F8F6]"
+                  aria-label="Close navigation menu"
                 >
-                  <div className="flex items-center justify-between border-b border-[#457B9D]/30 px-5 py-4">
-                    <div className="min-w-0">
-                      <Dialog.Title className="truncate font-[Outfit] text-lg font-light tracking-[0.24em] text-[#F1FAEE]">
-                        SurSangeet
-                      </Dialog.Title>
-                      <Dialog.Description className="truncate text-[10px] uppercase tracking-[0.3em] text-[#A8DADC]">
-                        Navigate the showcase
-                      </Dialog.Description>
-                    </div>
-                    <Dialog.Close asChild>
-                      <button
-                        type="button"
-                        className="inline-flex h-10 w-10 items-center justify-center border border-[#457B9D]/50 text-[#F1FAEE] transition-colors hover:border-[#E63946] hover:text-[#E63946]"
-                        aria-label="Close navigation menu"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </Dialog.Close>
-                  </div>
+                  <X className="h-5 w-5" />
+                </button>
+              </Dialog.Close>
+            </div>
 
-                  <div className="flex h-[calc(100%-73px)] flex-col justify-between px-5 py-5">
-                    <div className="flex flex-col gap-2.5">
-                      {links.map((link) => {
-                        const Icon = link?.icon ?? Home;
-                        const active = location?.pathname === (link?.href ?? '/');
-                        return (
-                          <NavLink
-                            key={link?.label ?? link?.href ?? crypto.randomUUID()}
-                            to={link?.href ?? '/'}
-                            onClick={() => setOpen(false)}
-                            className={cn(
-                              'flex items-center justify-between border px-4 py-3 text-sm transition-colors',
-                              active
-                                ? 'border-[#E63946] bg-[#25282B] text-[#F1FAEE]'
-                                : 'border-[#457B9D]/30 bg-transparent text-[#A8DADC] hover:border-[#E63946]/60 hover:text-[#F1FAEE]'
-                            )}
-                          >
-                            <span className="flex min-w-0 items-center gap-3">
-                              <Icon className="h-4 w-4 shrink-0" />
-                              <span className="min-w-0 truncate">{link?.label ?? 'Link'}</span>
-                            </span>
-                            <ChevronRight className="h-4 w-4 shrink-0" />
-                          </NavLink>
-                        );
-                      })}
-                    </div>
-
-                    <div className="space-y-3 border-t border-[#457B9D]/30 pt-4">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOpen(false);
-                          openContactDrawer?.();
-                        }}
-                        className="flex w-full items-center justify-between border border-[#E63946] bg-[#E63946] px-4 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-black transition-colors hover:bg-[#C92F3C]"
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          <Mail className="h-4 w-4" />
-                          Contact
-                        </span>
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                      <p className="text-xs leading-6 text-[#A8DADC]">
-                        Explore instruments, editorial stories, and immersive soundscapes.
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Dialog.Content>
-            </Dialog.Portal>
-          ) : null}
-        </AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="flex h-[calc(100%-73px)] flex-col gap-3 overflow-y-auto p-4"
+            >
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "rounded-md border px-4 py-3 text-sm font-semibold uppercase tracking-[0.22em] transition-colors",
+                    isActive(item.href)
+                      ? "border-[#E63946] bg-[#F7F8F6] text-black"
+                      : "border-[#CAD5D7] text-[#526166] hover:bg-[#F7F8F6] hover:text-black"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="pt-2">
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#526166]">
+                  Categories
+                </div>
+                <div className="flex flex-col gap-2.5">
+                  {categories.map((category) => (
+                    <Link
+                      key={category}
+                      to="/catalog"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center justify-between rounded-md border border-[#CAD5D7] px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-black transition-colors hover:bg-[#F7F8F6]"
+                    >
+                      <span className="min-w-0 truncate">{category}</span>
+                      <ChevronDown className="h-4 w-4 rotate-[-90deg] text-[#E63946]" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </Dialog.Content>
+        </Dialog.Portal>
       </Dialog.Root>
     </header>
   );

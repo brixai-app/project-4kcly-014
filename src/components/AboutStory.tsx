@@ -1,177 +1,110 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Award, Globe2, Leaf, Sparkles, Truck, Users } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { editorialContent } from '@/data/mockData';
+import React from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, Calendar, MapPin, Sparkles, Users } from 'lucide-react';
+import { cn } from "@/lib/utils";
+import { team, timeline } from "@/data/mockData";
 
-type AboutStoryProps = {
-  className?: string;
-};
-
-const accentMap = {
-  red: 'bg-[#D32F2F]',
-  green: 'bg-emerald-600',
-  blue: 'bg-sky-600',
-} as const;
-
-export function AboutStory({ className = '' }: AboutStoryProps) {
-  const story = editorialContent?.aboutStory ?? {};
-  const highlights = story?.highlights ?? [
-    'Curated instruments selected for tone, balance, and tactile presence.',
-    'A catalog shaped around craft, not clutter, with clear provenance and materials.',
-    'Editorial presentation that keeps the focus on form, finish, and sound.',
+export function AboutStory({ className = "" }: { className?: string }) {
+  const milestones = timeline ?? [];
+  const members = team ?? [];
+  const anchors = [
+    { href: "#story", label: "Story" },
+    { href: "#timeline", label: "Timeline" },
+    { href: "#team", label: "Team" },
   ];
-  const details = story?.details ?? [
-    { label: 'Craft focus', value: 'Hand-finished surfaces and resonant construction' },
-    { label: 'Selection', value: 'String, percussion, wind, keyboard, and electronic' },
-    { label: 'Service', value: 'Guidance for beginners, collectors, and performers' },
-  ];
-  const image = story?.image ?? 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1400&q=85';
 
   return (
-    <section className={cn('w-full bg-white text-[#18222C]', className)}>
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-16 md:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-          className="relative overflow-hidden rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5]"
-        >
-          <div className="absolute inset-0">
-            <img
-              src={image}
-              alt="SurSangeet craftsmanship story"
-              crossOrigin="anonymous"
-              className="h-full w-full object-cover object-center"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/55 via-[#0a0a0a]/10 to-transparent" />
-          </div>
+    <section className={cn("w-full bg-white text-black", className)}>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#526166]">
+          {anchors.map((anchor) => (
+            <a key={anchor.href} href={anchor.href} className="inline-flex items-center gap-2 border border-[#CAD5D7] bg-white px-3 py-2 transition hover:border-[#E63946] hover:text-black">
+              <span className="min-w-0 truncate">{anchor.label}</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+          ))}
+        </div>
 
-          <div className="relative flex min-h-[34rem] flex-col justify-between p-6 sm:p-8">
-            <div className="flex items-center gap-2 text-white/90">
-              <Sparkles className="h-4 w-4" />
-              <span className="text-xs font-semibold uppercase tracking-[0.28em]">About SurSangeet</span>
-            </div>
-
-            <div className="max-w-xl">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-white/80">
-                {story?.eyebrow ?? 'Editorial craft and musical clarity'}
+        <div id="story" className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.7 }} className="relative overflow-hidden border border-[#CAD5D7] bg-[#F7F8F6]">
+            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80" alt="SurSangeet studio portrait" crossOrigin="anonymous" className="h-full min-h-[420px] w-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/92 via-white/40 to-transparent" />
+            <div className="absolute left-0 top-0 h-full w-1 bg-[#E63946]" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+              <p className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#526166]">
+                <Sparkles className="h-4 w-4 text-[#E63946]" />
+                Editorial Music Journal
               </p>
-              <h2 className="max-w-lg text-4xl font-light tracking-tight text-white sm:text-5xl lg:text-6xl">
-                {story?.headline ?? 'Instruments chosen for presence, precision, and the quiet drama of making music.'}
-              </h2>
-              <p className="mt-5 max-w-xl text-sm leading-7 text-white/82 sm:text-base">
-                {story?.body ??
-                  'SurSangeet brings together tactile surfaces, balanced tonal families, and a restrained visual language that lets each instrument speak for itself. The result is a catalog that feels as considered as the instruments it presents.'}
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
-        <div className="grid gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.7, delay: 0.08, ease: 'easeOut' }}
-            className="grid gap-4 rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] p-6 sm:p-8"
-          >
-            <div className="grid gap-4 sm:grid-cols-3">
-              {details.map((item, index) => (
-                <div key={`${item.label}-${index}`} className="rounded-[12px] border border-[#D7DDE3] bg-white p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#5F6B76]">{item.label}</p>
-                  <p className="mt-2 text-sm leading-6 text-[#18222C]">{item.value}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid gap-3 border-t border-[#D7DDE3] pt-5">
-              {highlights.map((point, index) => (
-                <div key={`${point}-${index}`} className="flex items-start gap-3">
-                  <span className={cn('mt-1 h-2.5 w-2.5 shrink-0 rounded-full', accentMap[(index % 3 === 0 ? 'red' : index % 3 === 1 ? 'green' : 'blue') as keyof typeof accentMap])} />
-                  <p className="text-sm leading-7 text-[#5F6B76]">{point}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.7, delay: 0.14, ease: 'easeOut' }}
-            className="grid gap-4 sm:grid-cols-2"
-          >
-            <div className="rounded-[12px] border border-[#D7DDE3] bg-white p-5">
-              <div className="flex items-center gap-2">
-                <Leaf className="h-4 w-4 text-emerald-600" />
-                <h3 className="text-sm font-semibold uppercase tracking-[0.22em]">Materials</h3>
-              </div>
-              <p className="mt-3 text-sm leading-7 text-[#5F6B76]">
-                {story?.materials ??
-                  'Natural woods, refined alloys, responsive membranes, and finishes selected to age gracefully with use.'}
-              </p>
-            </div>
-
-            <div className="rounded-[12px] border border-[#D7DDE3] bg-white p-5">
-              <div className="flex items-center gap-2">
-                <Truck className="h-4 w-4 text-sky-600" />
-                <h3 className="text-sm font-semibold uppercase tracking-[0.22em]">Delivery</h3>
-              </div>
-              <p className="mt-3 text-sm leading-7 text-[#5F6B76]">
-                {story?.delivery ??
-                  'Careful packaging, transparent availability, and a calm purchasing flow designed for confident selection.'}
-              </p>
-            </div>
-
-            <div className="rounded-[12px] border border-[#D7DDE3] bg-white p-5">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-[#D32F2F]" />
-                <h3 className="text-sm font-semibold uppercase tracking-[0.22em]">Guidance</h3>
-              </div>
-              <p className="mt-3 text-sm leading-7 text-[#5F6B76]">
-                {story?.guidance ??
-                  'A thoughtful catalog for players, collectors, and first-time buyers seeking clarity over noise.'}
-              </p>
-            </div>
-
-            <div className="rounded-[12px] border border-[#D7DDE3] bg-white p-5">
-              <div className="flex items-center gap-2">
-                <Globe2 className="h-4 w-4 text-[#18222C]" />
-                <h3 className="text-sm font-semibold uppercase tracking-[0.22em]">Origin</h3>
-              </div>
-              <p className="mt-3 text-sm leading-7 text-[#5F6B76]">
-                {story?.origin ??
-                  'A global perspective with local sensitivity, balancing heritage, innovation, and everyday playability.'}
+              <h2 className="max-w-xl text-4xl font-light uppercase tracking-tight text-black sm:text-5xl lg:text-6xl">A stage for instruments with character, resonance, and craft.</h2>
+              <p className="mt-4 max-w-lg text-sm leading-6 text-[#526166] sm:text-base">
+                SurSangeet curates a visual language of saturated accents, tactile surfaces, and precise typography to spotlight instruments as cultural objects rather than catalog entries.
               </p>
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
-            className="rounded-[12px] border border-[#D7DDE3] bg-[#F5F5F5] p-6 sm:p-8"
-          >
-            <div className="flex items-center gap-2">
-              <Award className="h-4 w-4 text-[#D32F2F]" />
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#5F6B76]">Craftsmanship notes</p>
-            </div>
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
+          <div className="grid gap-6">
+            <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.7, delay: 0.05 }} className="border border-[#CAD5D7] bg-white p-6 sm:p-8">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#526166]">Our approach</p>
+              <div className="space-y-4 text-sm leading-6 text-[#526166] sm:text-base">
+                <p>
+                  We build a responsive, keyboard-friendly experience around a centralized instrument library, pairing full-bleed imagery with asymmetric layouts and motion that feels editorial rather than transactional.
+                </p>
+                <p>
+                  Every section is designed to breathe: bold uppercase headings, measured spacing, and subtle shadows keep the interface vivid without losing clarity.
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.7, delay: 0.1 }} className="grid gap-4 sm:grid-cols-2">
               {[
-                'Balanced tonal families for expressive range and visual coherence.',
-                'Minimal editorial framing that keeps the instrument at the center of attention.',
-                'Warm tactile surfaces paired with crisp white and light-gray canvases.',
-              ].map((note, index) => (
-                <div key={`${note}-${index}`} className="rounded-[12px] border border-[#D7DDE3] bg-white p-4">
-                  <div className="mb-3 h-1 w-12 bg-[#D32F2F]" />
-                  <p className="text-sm leading-7 text-[#5F6B76]">{note}</p>
+                { icon: Users, title: "Curated voices", text: "A small team with a shared eye for tone, texture, and performance." },
+                { icon: MapPin, title: "Rooted in place", text: "Visual cues draw from Indian music journals, studio culture, and live performance." },
+              ].map((item) => (
+                <div key={item.title} className="border border-[#CAD5D7] bg-[#F7F8F6] p-5">
+                  <item.icon className="mb-4 h-5 w-5 text-[#E63946]" />
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-black">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[#526166]">{item.text}</p>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+
+        <div id="timeline" className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.7 }} className="border border-[#CAD5D7] bg-[#F7F8F6] p-6 sm:p-8">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#526166]">Timeline</p>
+            <div className="space-y-5">
+              {milestones.map((item, index) => (
+                <div key={`${item.year}-${item.title}`} className="grid grid-cols-[auto_1fr] gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="flex h-9 w-9 items-center justify-center border border-[#CAD5D7] bg-white text-xs font-semibold text-black">{index + 1}</div>
+                    {index < milestones.length - 1 ? <div className="mt-2 h-full w-px bg-[#CAD5D7]" /> : null}
+                  </div>
+                  <div className="pb-5">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#526166]">
+                      <Calendar className="h-3.5 w-3.5 text-[#E63946]" />
+                      {item.year}
+                    </div>
+                    <h3 className="mt-2 text-lg font-semibold uppercase tracking-[0.16em] text-black">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-[#526166]">{item.description}</p>
+                  </div>
                 </div>
               ))}
             </div>
           </motion.div>
+
+          <div id="team" className="grid gap-4 sm:grid-cols-2">
+            {members.map((member, index) => (
+              <motion.article key={member.name} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.6, delay: index * 0.06 }} className="overflow-hidden border border-[#CAD5D7] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+                <img src={member.image} alt={member.name} crossOrigin="anonymous" className="h-72 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#526166]">{member.role}</p>
+                  <h3 className="mt-2 text-xl font-semibold uppercase tracking-[0.14em] text-black">{member.name}</h3>
+                  <p className="mt-3 text-sm leading-6 text-[#526166]">{member.bio}</p>
+                </div>
+              </motion.article>
+            ))}
+          </div>
         </div>
       </div>
     </section>

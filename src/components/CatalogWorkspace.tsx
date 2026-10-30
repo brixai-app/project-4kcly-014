@@ -1,225 +1,225 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronDown, Filter, RefreshCw, Search, Sliders } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { categories, instruments } from '@/data/mockData';
-import MasonryGrid from '@/components/MasonryGrid';
-import type { AvailabilityStatus, Category, Instrument } from '@/types';
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { ChevronDown, Filter, Search, Sliders, X } from 'lucide-react';
+import { cn } from "@/lib/utils";
+import mockData from "@/data/mockData";
+import type { Instrument, InstrumentCategory } from "@/types";
 
-type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'name-asc';
-
-type FilterDropdownProps = {
-  label?: string;
-  value?: string;
-  options?: string[];
-  onChange?: (value: string) => void;
+type Props = {
   className?: string;
+  onSelectInstrument?: (instrument: Instrument) => void;
 };
 
-type SearchBarProps = {
-  value?: string;
-  onChange?: (value: string) => void;
-  className?: string;
-};
+const categories = ["All", ...(mockData?.categories ?? [])] as const;
 
-const availabilityOptions: (AvailabilityStatus | 'All')[] = ['All', 'available', 'limited', 'sold-out'];
-const sortOptions: { value: SortOption; label: string }[] = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' },
-  { value: 'name-asc', label: 'Name: A to Z' },
-];
-
-const sanitizeSearch = (value: string) => value.replace(/[<>]/g, '').trim().slice(0, 60);
-
-export function SearchBar({ value = '', onChange = () => {}, className = '' }: SearchBarProps) {
+function InstrumentCard({
+  instrument,
+  onSelect,
+}: {
+  instrument: Instrument;
+  onSelect?: (instrument: Instrument) => void;
+}) {
+  const price = `₹${(instrument?.price ?? 0).toLocaleString("en-IN")}`;
   return (
-    <label className={cn('flex items-center gap-3 border border-[#D7DCE2] bg-white px-4 py-3', className)}>
-      <Search className="h-4 w-4 text-[#5E6670]" />
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Search instruments"
-        className="w-full bg-transparent text-sm text-[#17191C] outline-none placeholder:text-[#5E6670]"
-      />
-    </label>
+    <motion.button
+      type="button"
+      whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.99 }}
+      onClick={() => onSelect?.(instrument)}
+      className="group relative flex w-full flex-col overflow-hidden border border-[#CAD5D7] bg-white text-left shadow-[0_18px_40px_rgba(0,0,0,0.06)] transition-shadow hover:shadow-[0_24px_60px_rgba(0,0,0,0.1)]"
+    >
+      <div className="relative aspect-[3/4] overflow-hidden bg-[#F7F8F6]">
+        <img
+          src={instrument?.image ?? ""}
+          alt={instrument?.name ?? "Instrument"}
+          crossOrigin="anonymous"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      </div>
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="min-w-0">
+          <p className="truncate text-[10px] font-semibold uppercase tracking-[0.28em] text-[#526166]">
+            {instrument?.category ?? ""}
+          </p>
+          <h3 className="mt-1 min-w-0 truncate text-base font-semibold text-black">
+            {instrument?.name ?? ""}
+          </h3>
+        </div>
+        <p className="line-clamp-3 text-sm leading-6 text-[#526166]">
+          {instrument?.shortDescription ?? instrument?.description ?? ""}
+        </p>
+        <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-black">{price}</span>
+          <span className="translate-y-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#E63946] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            View details
+          </span>
+        </div>
+      </div>
+    </motion.button>
   );
 }
 
-export function FilterDropdown({ label = 'Filter', value = '', options = [], onChange = () => {}, className = '' }: FilterDropdownProps) {
-  return (
-    <div className={cn('relative', className)}>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="appearance-none border border-[#D7DCE2] bg-white px-4 py-3 pr-10 text-xs font-semibold uppercase tracking-widest text-[#17191C] outline-none"
-      >
-        <option value="">{label}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5E6670]" />
-    </div>
-  );
-}
-
-function CatalogWorkspace() {
-  const [searchInput, setSearchInput] = useState('');
-  const [search, setSearch] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
-  const [availability, setAvailability] = useState<AvailabilityStatus | 'All'>('All');
-  const [sort, setSort] = useState<SortOption>('featured');
-  const [loading, setLoading] = useState(true);
+export function CatalogWorkspace({ className = "", onSelectInstrument }: Props) {
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<"All" | InstrumentCategory>("All");
+  const [sortKey, setSortKey] = useState<"featured" | "price-asc" | "price-desc">("featured");
 
   useEffect(() => {
-    const t = window.setTimeout(() => setSearch(sanitizeSearch(searchInput)), 220);
-    return () => window.clearTimeout(t);
-  }, [searchInput]);
-
-  useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 260);
-    return () => window.clearTimeout(t);
-  }, []);
+    const id = window.setTimeout(() => setDebouncedQuery(query.trim().toLowerCase()), 250);
+    return () => window.clearTimeout(id);
+  }, [query]);
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    const list = instruments.filter((item) => {
-      const matchesSearch =
-        !q ||
-        [item.name, item.category, item.origin, item.description, ...(item.materials ?? [])]
-          .join(' ')
-          .toLowerCase()
-          .includes(q);
-      const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(item.category);
-      const matchesAvailability = availability === 'All' || item.availability === availability;
-      return matchesSearch && matchesCategory && matchesAvailability;
+    const items = (mockData?.instruments ?? []).filter((instrument) => {
+      const matchesCategory = activeCategory === "All" || instrument?.category === activeCategory;
+      const haystack = `${instrument?.name ?? ""} ${instrument?.description ?? ""} ${instrument?.shortDescription ?? ""}`.toLowerCase();
+      const matchesQuery = debouncedQuery.length < 2 || haystack.includes(debouncedQuery);
+      return matchesCategory && matchesQuery;
     });
 
-    const sorted = [...list].sort((a, b) => {
-      if (sort === 'price-asc') return a.price - b.price;
-      if (sort === 'price-desc') return b.price - a.price;
-      if (sort === 'name-asc') return a.name.localeCompare(b.name);
-      if (a.featured && !b.featured) return -1;
-      if (!a.featured && b.featured) return 1;
-      return a.name.localeCompare(b.name);
+    const sorted = [...items].sort((a, b) => {
+      if (sortKey === "price-asc") return (a?.price ?? 0) - (b?.price ?? 0);
+      if (sortKey === "price-desc") return (b?.price ?? 0) - (a?.price ?? 0);
+      return 0;
     });
 
     return sorted;
-  }, [availability, search, selectedCategories, sort]);
+  }, [activeCategory, debouncedQuery, sortKey]);
 
-  const toggleCategory = (category: Category) => {
-    setSelectedCategories((prev) => (prev.includes(category) ? prev.filter((item) => item !== category) : [...prev, category]));
-  };
-
-  const clearAll = () => {
-    setSearchInput('');
-    setSearch('');
-    setSelectedCategories([]);
-    setAvailability('All');
-    setSort('featured');
-  };
-
-  const cards = useMemo(
-    () =>
-      filtered.map((item: Instrument) => ({
-        ...item,
-        href: `/catalog/${item.slug}`,
-      })),
-    [filtered]
-  );
+  const featured = filtered?.slice(0, 1)?.[0];
+  const rest = filtered?.slice(1) ?? [];
 
   return (
-    <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="sticky top-0 z-20 mb-6 border border-[#D7DCE2] bg-white/95 backdrop-blur">
-          <div className="flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-3">
-              <Sliders className="h-4 w-4 text-[#D32F2F]" />
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-[#5E6670]">Catalog Workspace</p>
-                <p className="text-sm text-[#17191C]">{filtered.length} instruments refined for the current view</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={clearAll}
-              className="inline-flex items-center gap-2 self-start border border-[#D7DCE2] px-4 py-3 text-xs font-semibold uppercase tracking-widest text-[#17191C] transition-colors hover:border-[#D32F2F] hover:text-[#D32F2F]"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Clear All
-            </button>
+    <section className={cn("w-full bg-white", className)}>
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 md:grid-cols-[280px_minmax(0,1fr)] md:px-6 lg:px-8">
+        <aside className="flex min-w-0 flex-col gap-4 border border-[#CAD5D7] bg-[#F7F8F6] p-4">
+          <div className="flex items-center gap-2">
+            <Sliders className="h-4 w-4 text-[#E63946]" />
+            <h2 className="min-w-0 truncate text-xs font-semibold uppercase tracking-[0.28em] text-black">
+              Catalog filters
+            </h2>
           </div>
 
-          <div className="grid gap-3 border-t border-[#D7DCE2] p-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr_auto]">
-            <SearchBar value={searchInput} onChange={setSearchInput} />
-            <FilterDropdown
-              label="Availability"
-              value={availability}
-              options={availabilityOptions}
-              onChange={(value) => setAvailability(value as AvailabilityStatus | 'All')}
+          <label className="flex min-w-0 items-center gap-2 border border-[#CAD5D7] bg-white px-3 py-2">
+            <Search className="h-4 w-4 shrink-0 text-[#526166]" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search instruments"
+              className="min-w-0 w-full bg-transparent text-sm text-black outline-none placeholder:text-[#526166]"
             />
-            <FilterDropdown
-              label="Sort"
-              value={sort}
-              options={sortOptions.map((option) => option.label)}
-              onChange={(value) => {
-                const match = sortOptions.find((option) => option.label === value);
-                setSort(match?.value ?? 'featured');
-              }}
-            />
+          </label>
+
+          <div className="flex flex-col gap-2.5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#526166]">Category</p>
             <div className="flex flex-wrap gap-2">
-              {categories.map((category) => {
-                const active = selectedCategories.includes(category);
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => toggleCategory(category)}
-                    className={cn(
-                      'border px-3 py-3 text-xs font-semibold uppercase tracking-widest transition-colors',
-                      active ? 'border-[#D32F2F] bg-[#D32F2F] text-white' : 'border-[#D7DCE2] bg-white text-[#17191C] hover:border-[#D32F2F] hover:text-[#D32F2F]'
-                    )}
-                  >
-                    {category}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="flex items-center justify-end">
-              <button
-                type="button"
-                onClick={clearAll}
-                className="inline-flex items-center gap-2 border border-[#D7DCE2] px-4 py-3 text-xs font-semibold uppercase tracking-widest text-[#17191C] transition-colors hover:border-[#D32F2F] hover:text-[#D32F2F]"
-              >
-                <Filter className="h-4 w-4" />
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-        >
-          {loading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="aspect-[3/4] animate-pulse bg-[#F5F5F5]" />
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setActiveCategory(category)}
+                  className={cn(
+                    "min-w-0 border px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] transition-colors",
+                    activeCategory === category
+                      ? "border-[#E63946] bg-[#E63946] text-black"
+                      : "border-[#CAD5D7] bg-white text-black hover:border-black"
+                  )}
+                >
+                  <span className="block truncate">{category}</span>
+                </button>
               ))}
             </div>
+          </div>
+
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button
+                type="button"
+                className="flex w-full items-center justify-between border border-[#CAD5D7] bg-white px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.24em] text-black"
+              >
+                <span className="min-w-0 truncate">Sort: {sortKey.replace("-", " ")}</span>
+                <ChevronDown className="h-4 w-4 shrink-0" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                align="start"
+                sideOffset={8}
+                className="z-50 min-w-[220px] border border-[#CAD5D7] bg-white p-1 shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
+              >
+                {[
+                  ["featured", "Featured"],
+                  ["price-asc", "Price: Low to High"],
+                  ["price-desc", "Price: High to Low"],
+                ].map(([key, label]) => (
+                  <DropdownMenu.Item
+                    key={key}
+                    onSelect={() => setSortKey(key as typeof sortKey)}
+                    className="cursor-pointer px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-black outline-none hover:bg-[#F7F8F6]"
+                  >
+                    {label}
+                  </DropdownMenu.Item>
+                ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setActiveCategory("All");
+              setSortKey("featured");
+            }}
+            className="flex items-center justify-center gap-2 border border-[#CAD5D7] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-black transition-colors hover:border-black"
+          >
+            <X className="h-4 w-4" />
+            Reset
+          </button>
+        </aside>
+
+        <div className="min-w-0">
+          <div className="mb-5 flex items-end justify-between gap-4 border-b border-[#CAD5D7] pb-4">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#526166]">Curated selection</p>
+              <h2 className="min-w-0 truncate text-2xl font-semibold text-black">Asymmetric masonry field</h2>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#526166]">
+              <Filter className="h-4 w-4 text-[#E63946]" />
+              {filtered.length} instruments
+            </div>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="flex min-h-[360px] items-center justify-center border border-dashed border-[#CAD5D7] bg-[#F7F8F6] p-8 text-center">
+              <div className="max-w-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#526166]">No results found</p>
+                <p className="mt-3 text-sm leading-6 text-[#526166]">
+                  Try a broader search or switch categories to reveal more instruments.
+                </p>
+              </div>
+            </div>
           ) : (
-            <MasonryGrid instruments={cards} />
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {featured ? (
+                <div className="md:col-span-2 xl:col-span-2">
+                  <InstrumentCard instrument={featured} onSelect={onSelectInstrument} />
+                </div>
+              ) : null}
+              {rest.map((instrument, index) => (
+                <div key={instrument?.id ?? index} className={index % 3 === 0 ? "xl:col-span-1" : ""}>
+                  <InstrumentCard instrument={instrument} onSelect={onSelectInstrument} />
+                </div>
+              ))}
+            </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
 }
 
 export default CatalogWorkspace;
-export { CatalogWorkspace };

@@ -1,104 +1,90 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Facebook, Github, Instagram, Linkedin, Twitter, Youtube, Mail, Phone, MapPin, ArrowUpRight } from 'lucide-react';
-import { socialLinks, contactDetails, navigationLinks } from '@/data/mockData';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, Mail, MapPin, Phone, Instagram, Youtube, Linkedin, Github } from 'lucide-react';
+import { cn } from "@/lib/utils";
+import { navigation } from "@/data/mockData";
 
-export interface FooterProps {
-  className?: string;
-}
+type FooterProps = { className?: string };
 
-export function Footer({ className = '' }: FooterProps) {
-  const socials = socialLinks ?? [];
-  const navLinks = navigationLinks ?? [];
-  const contact = contactDetails ?? {};
+const socialLinks = [
+  { label: "Instagram", href: "https://instagram.com", icon: Instagram },
+  { label: "YouTube", href: "https://youtube.com", icon: Youtube },
+  { label: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
+  { label: "GitHub", href: "https://github.com", icon: Github },
+];
 
-  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-    Facebook,
-    Github,
-    Instagram,
-    Linkedin,
-    Twitter,
-    Youtube,
-  };
-
+export function Footer({ className = "" }: FooterProps) {
+  const routes = navigation?.slice?.(0, 4) ?? [];
+  const categories = ["Strings", "Percussion", "Wind", "Keyboard"];
   return (
-    <footer className={cn('relative overflow-hidden border-t border-[#457B9D]/40 bg-[#1D1D1D] text-[#F1FAEE]', className)}>
-      <div className="absolute inset-0 opacity-70">
-        <svg viewBox="0 0 1440 320" className="h-full w-full" preserveAspectRatio="none" aria-hidden="true">
-          <path fill="#E63946" fillOpacity="0.16" d="M0,224L48,208C96,192,192,160,288,144C384,128,480,128,576,149.3C672,171,768,213,864,208C960,203,1056,149,1152,138.7C1248,128,1344,160,1392,176L1440,192V320H0Z" />
-          <path fill="#2A9D8F" fillOpacity="0.12" d="M0,256L60,240C120,224,240,192,360,176C480,160,600,160,720,181.3C840,203,960,245,1080,245.3C1200,245,1320,203,1380,181.3L1440,160V320H0Z" />
-          <path fill="#457B9D" fillOpacity="0.14" d="M0,288L80,272C160,256,320,224,480,213.3C640,203,800,213,960,224C1120,235,1280,245,1360,250.7L1440,256V320H0Z" />
-        </svg>
-      </div>
+    <footer className={cn("border-t border-[#CAD5D7] bg-[#F7F8F6] text-black", className)}>
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:grid-cols-12 md:px-8">
+        <div className="md:col-span-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#E63946]">SurSangeet</p>
+          <h2 className="mt-4 max-w-md font-[Outfit,sans-serif] text-3xl font-light uppercase tracking-tight sm:text-4xl">
+            A vivid instrument journal for modern listeners and collectors.
+          </h2>
+          <p className="mt-4 max-w-lg text-sm leading-6 text-[#526166]">
+            SurSangeet curates expressive instruments through editorial imagery, tactile detail, and a responsive browsing experience built for discovery.
+          </p>
+        </div>
 
-      <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-12 md:grid-cols-[1.2fr_0.8fr_0.9fr] md:px-8">
-        <div className="space-y-5">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#A8DADC]">SurSangeet</p>
-            <p className="max-w-md text-sm leading-6 text-[#F1FAEE]/80">
-              A concert-stage showcase for expressive instruments, editorial compositions, and tactile sound culture.
-            </p>
+        <div className="grid gap-8 sm:grid-cols-2 md:col-span-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#526166]">Navigate</p>
+            <div className="mt-4 flex flex-col gap-2.5">
+              {routes.map((item) => (
+                <Link key={item?.label ?? item?.path} to={item?.path ?? "/"} className="group inline-flex items-center justify-between gap-3 text-sm font-semibold uppercase tracking-widest text-black transition-colors hover:text-[#E63946]">
+                  <span className="min-w-0 truncate">{item?.label ?? ""}</span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0" />
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-col gap-3 text-sm text-[#F1FAEE]/85">
-            <a href={`mailto:${contact?.email ?? ''}`} className="flex items-center gap-3 transition-colors hover:text-[#E63946]">
-              <Mail className="h-4 w-4 text-[#E63946]" />
-              <span className="min-w-0 break-words">{contact?.email ?? 'hello@sursangeet.com'}</span>
-            </a>
-            <a href={`tel:${contact?.phone ?? ''}`} className="flex items-center gap-3 transition-colors hover:text-[#E63946]">
-              <Phone className="h-4 w-4 text-[#E63946]" />
-              <span>{contact?.phone ?? '+91 98765 43210'}</span>
-            </a>
-            <div className="flex items-start gap-3">
-              <MapPin className="mt-0.5 h-4 w-4 text-[#E63946]" />
-              <span className="min-w-0 break-words">{contact?.address ?? 'Mumbai, India'}</span>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#526166]">Families</p>
+            <div className="mt-4 flex flex-col gap-2.5">
+              {categories.map((category) => (
+                <Link key={category} to="/catalog" className="text-sm font-semibold uppercase tracking-widest text-black transition-colors hover:text-[#E63946]">
+                  <span className="min-w-0 truncate">{category}</span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#A8DADC]">Navigate</p>
-          <nav className="flex flex-col gap-2.5">
-            {navLinks.map((link: any) => (
-              <Link
-                key={link?.to ?? link?.label}
-                to={link?.to ?? '/'}
-                className="group flex items-center justify-between gap-3 border-b border-[#457B9D]/25 py-2 text-sm text-[#F1FAEE]/85 transition-colors hover:text-[#E63946]"
-              >
-                <span className="min-w-0 truncate">{link?.label ?? 'Link'}</span>
-                <ArrowUpRight className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        <div className="space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#A8DADC]">Follow</p>
-          <div className="flex flex-wrap gap-3">
-            {socials.map((social: any) => {
-              const Icon = iconMap[social?.icon ?? ''] ?? Github;
+        <div className="md:col-span-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#526166]">Contact</p>
+          <div className="mt-4 flex flex-col gap-3 text-sm text-[#526166]">
+            <a href="mailto:hello@sursangeet.com" className="inline-flex items-center gap-3 transition-colors hover:text-black">
+              <Mail className="h-4 w-4 shrink-0 text-[#E63946]" />
+              <span className="min-w-0 truncate">hello@sursangeet.com</span>
+            </a>
+            <a href="tel:+911234567890" className="inline-flex items-center gap-3 transition-colors hover:text-black">
+              <Phone className="h-4 w-4 shrink-0 text-[#E63946]" />
+              <span className="min-w-0 truncate">+91 12345 67890</span>
+            </a>
+            <div className="inline-flex items-start gap-3">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E63946]" />
+              <span className="min-w-0 break-words">Studio 12, Resonance House, New Delhi, India</span>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {socialLinks.map((social) => {
+              const Icon = social.icon;
               return (
-                <a
-                  key={social?.label ?? social?.href}
-                  href={social?.href ?? '#'}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={social?.label ?? 'Social link'}
-                  className="inline-flex items-center gap-2 border border-[#457B9D]/40 bg-[#25282B]/80 px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#F1FAEE] transition-colors hover:border-[#E63946] hover:text-[#E63946]"
-                >
+                <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={social.label} className="inline-flex h-10 w-10 items-center justify-center border border-[#CAD5D7] bg-white text-black transition-transform duration-300 hover:-translate-y-0.5 hover:border-[#E63946] hover:text-[#E63946]">
                   <Icon className="h-4 w-4" />
-                  <span>{social?.label ?? 'Social'}</span>
                 </a>
               );
             })}
           </div>
         </div>
       </div>
-
-      <div className="relative border-t border-[#457B9D]/25 px-5 py-4 md:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 text-xs uppercase tracking-[0.3em] text-[#A8DADC]/80 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} SurSangeet. All rights reserved.</p>
-          <p>Crafted for immersive instrument storytelling.</p>
+      <div className="border-t border-[#CAD5D7] px-5 py-4 text-xs uppercase tracking-[0.3em] text-[#526166] md:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} SurSangeet</span>
+          <span>Editorial instrument showcase</span>
         </div>
       </div>
     </footer>

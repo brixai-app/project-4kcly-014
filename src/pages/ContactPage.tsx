@@ -1,67 +1,69 @@
-import { Mail, MapPin, Phone, Clock, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { RequestInfoDrawer } from '@/components/RequestInfoDrawer';
+import { motion } from "framer-motion";
+import { Mail, MapPin, Phone, Send } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
-export function ContactPage({ className = '' }: { className?: string }) {
+export function ContactPage({ className = "" }: { className?: string }) {
   return (
-    <main className={cn('bg-white text-[#1A1A1A]', className)}>
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.1fr_0.9fr] md:px-6 lg:px-8">
+    <main className={cn("bg-white text-black", className)}>
+      <section className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.1fr_0.9fr] md:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-          className="min-w-0"
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="flex flex-col justify-between rounded-[16px] border border-[#CAD5D7] bg-[#F7F8F6] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.06)] md:p-8"
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#5F6368]">Contact</p>
-          <h1 className="mt-4 max-w-2xl font-[Outfit] text-5xl font-light tracking-tight md:text-7xl">
-            Start a conversation around your next instrument.
-          </h1>
-          <p className="mt-5 max-w-xl text-sm leading-7 text-[#5F6368] md:text-base">
-            Reach out for availability, custom guidance, studio sourcing, or a private recommendation. We respond with
-            focused, instrument-aware support.
-          </p>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            {[
-              { icon: Mail, label: 'Email', value: 'hello@sursangeet.com' },
-              { icon: Phone, label: 'Phone', value: '+91 98765 43210' },
-              { icon: MapPin, label: 'Studio', value: 'Mumbai, India' },
-              { icon: Clock, label: 'Hours', value: 'Mon–Sat · 10:00–19:00' },
-            ].map((item) => (
-              <div key={item.label} className="rounded-[18px] border border-[#D8D4CC] bg-[#F4F1EB] p-4">
-                <item.icon className="h-5 w-5 text-[#E63946]" />
-                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.3em] text-[#5F6368]">{item.label}</p>
-                <p className="mt-1 break-words text-sm font-medium text-[#1A1A1A]">{item.value}</p>
-              </div>
-            ))}
+          <div className="space-y-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#526166]">Contact SurSangeet</p>
+            <h1 className="max-w-xl font-[Outfit] text-5xl font-light uppercase tracking-tight md:text-7xl">
+              Let the next conversation begin in rhythm.
+            </h1>
+            <p className="max-w-lg text-sm leading-7 text-[#526166] md:text-base">
+              Reach out for instrument guidance, editorial collaborations, or curated recommendations. We respond with clarity, care, and a musician’s ear.
+            </p>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/catalog"
-              className="inline-flex items-center gap-2 rounded-md bg-[#E63946] px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-black transition-colors hover:bg-[#C92D39]"
-            >
-              Explore Catalog <ArrowRight className="h-4 w-4" />
-            </Link>
-            <RequestInfoDrawer className="min-w-0" />
+          <div className="mt-10 grid gap-3 sm:grid-cols-3">
+            {[
+              { icon: Mail, label: "Email", value: "hello@sursangeet.in" },
+              { icon: Phone, label: "Phone", value: "+91 98765 43210" },
+              { icon: MapPin, label: "Studio", value: "Mumbai, India" },
+            ].map((item) => (
+              <div key={item.label} className="rounded-[16px] border border-[#CAD5D7] bg-white p-4">
+                <item.icon className="h-4 w-4 text-[#E63946]" />
+                <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#526166]">{item.label}</p>
+                <p className="mt-2 break-words text-sm font-medium">{item.value}</p>
+              </div>
+            ))}
           </div>
         </motion.div>
 
         <motion.aside
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
-          className="min-w-0 rounded-[18px] border border-[#D8D4CC] bg-[#F4F1EB] p-5 md:p-6"
+          transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
+          className="flex flex-col justify-between rounded-[16px] border border-[#CAD5D7] bg-black p-6 text-white shadow-[0_18px_50px_rgba(0,0,0,0.12)] md:p-8"
         >
-          <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#5F6368]">Response information</p>
-            <h2 className="font-[Outfit] text-2xl font-light tracking-tight">What happens after you reach out</h2>
-            <div className="space-y-3 text-sm leading-7 text-[#5F6368]">
-              <p>We review your inquiry, match it to the right instrument specialist, and reply with clear next steps.</p>
-              <p>For product-specific questions, include the instrument name or category so we can respond faster.</p>
-              <p>For studio or bulk sourcing, we can coordinate availability, recommendations, and delivery timing.</p>
+          <div className="space-y-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/60">Editorial response</p>
+            <h2 className="font-[Outfit] text-3xl font-light uppercase tracking-tight md:text-4xl">
+              Send a note, request a recommendation, or start a collaboration.
+            </h2>
+            <p className="max-w-md text-sm leading-7 text-white/70">
+              The contact drawer keeps the experience focused and accessible, with validated outcomes surfaced through subtle motion and clear feedback.
+            </p>
+          </div>
+
+          <div className="mt-10 flex flex-col gap-3">
+            <Link
+              to="/catalog"
+              className="inline-flex items-center justify-between border border-white/20 bg-[#E63946] px-5 py-4 text-xs font-semibold uppercase tracking-[0.3em] text-black transition-colors hover:bg-[#C92532]"
+            >
+              Explore catalog
+              <Send className="h-4 w-4" />
+            </Link>
+            <div className="rounded-[16px] border border-white/10 bg-white/5 p-4 text-sm leading-7 text-white/75">
+              Prefer a direct line? Open the shared contact drawer from the header to send your message without leaving the page.
             </div>
           </div>
         </motion.aside>
