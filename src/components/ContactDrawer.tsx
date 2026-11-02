@@ -1,69 +1,84 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { AnimatePresence, motion } from 'framer-motion';
-import { X } from 'lucide-react';
-import React from 'react';
-import { useShowcase } from '@/context/ShowcaseContext';
-import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Mail, Phone, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { ContactForm } from '@/components/ContactForm';
+import { cn } from '@/lib/utils';
+import type { ContactDrawerProps } from '@/types';
 
-export interface ContactDrawerProps {
-  className?: string;
-}
+export function ContactDrawer({ className = '' }: { className?: string }) {
+  const [open, setOpen] = useState(false);
 
-export function ContactDrawer({ className = '' }: ContactDrawerProps) {
-  const { contactDrawerOpen, setContactDrawerOpen } = useShowcase?.() ?? {
-    contactDrawerOpen: false,
-    setContactDrawerOpen: () => {},
-  };
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener('open-contact-drawer', onOpen as EventListener);
+    return () => window.removeEventListener('open-contact-drawer', onOpen as EventListener);
+  }, []);
 
   return (
-    <Dialog.Root open={contactDrawerOpen ?? false} onOpenChange={(open) => setContactDrawerOpen?.(open)}>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className={cn(
+            'inline-flex items-center gap-2 border border-[#D7DFDD] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#142D35] transition hover:border-[#E63946] hover:text-[#E63946]',
+            className,
+          )}
+        >
+          <Mail className="h-4 w-4" />
+          Contact Us
+        </button>
+      </Dialog.Trigger>
       <AnimatePresence>
-        {contactDrawerOpen ? (
+        {open ? (
           <Dialog.Portal forceMount>
             <Dialog.Overlay asChild>
               <motion.div
-                className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm"
+                className="fixed inset-0 z-50 bg-black/40"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.22, ease: 'easeOut' }}
               />
             </Dialog.Overlay>
             <Dialog.Content asChild>
               <motion.aside
-                className={cn(
-                  'fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-[#457B9D]/70 bg-[#25282B] text-[#F1FAEE] shadow-2xl outline-none',
-                  className
-                )}
-                initial={{ x: '100%', opacity: 0.9 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: '100%', opacity: 0.9 }}
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
                 transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+                className="fixed right-0 top-0 z-50 flex h-full w-full max-w-[520px] flex-col border-l border-[#D7DFDD] bg-white shadow-2xl outline-none"
               >
-                <div className="flex h-full flex-col">
-                  <div className="flex items-start justify-between gap-4 border-b border-[#457B9D]/40 px-6 py-5">
-                    <div className="min-w-0">
-                      <Dialog.Title className="font-['Outfit'] text-2xl font-light tracking-tight">
-                        Contact SurSangeet
-                      </Dialog.Title>
-                      <Dialog.Description className="mt-1 text-sm text-[#A8DADC]">
-                        Send a note for bookings, collaborations, or press.
-                      </Dialog.Description>
+                <div className="flex items-center justify-between border-b border-[#D7DFDD] px-5 py-4">
+                  <div className="min-w-0">
+                    <Dialog.Title className="text-sm font-semibold uppercase tracking-[0.22em] text-[#142D35]">
+                      Contact SurSangeet
+                    </Dialog.Title>
+                    <Dialog.Description className="mt-1 text-sm text-[#5E6E73]">
+                      Share your inquiry, listening request, or collaboration note.
+                    </Dialog.Description>
+                  </div>
+                  <Dialog.Close asChild>
+                    <button type="button" className="inline-flex h-10 w-10 items-center justify-center text-[#142D35] transition hover:text-[#E63946]">
+                      <X className="h-5 w-5" />
+                    </button>
+                  </Dialog.Close>
+                </div>
+                <div className="flex-1 overflow-y-auto px-5 py-5">
+                  <div className="mb-5 grid gap-3 border-b border-[#D7DFDD] pb-5 text-sm text-[#5E6E73]">
+                    <div className="flex items-start gap-3">
+                      <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#E63946]" />
+                      <span>hello@sursangeet.com</span>
                     </div>
-                    <Dialog.Close asChild>
-                      <button
-                        type="button"
-                        className="inline-flex h-10 w-10 items-center justify-center border border-[#457B9D]/60 text-[#F1FAEE] transition-colors hover:bg-[#E63946] hover:text-black"
-                        aria-label="Close contact drawer"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </Dialog.Close>
+                    <div className="flex items-start gap-3">
+                      <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#E63946]" />
+                      <span>+91 98765 43210</span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E63946]" />
+                      <span>Mumbai, India</span>
+                    </div>
                   </div>
-                  <div className="flex-1 overflow-y-auto px-6 py-6">
-                    <ContactForm />
-                  </div>
+                  <ContactForm />
                 </div>
               </motion.aside>
             </Dialog.Content>

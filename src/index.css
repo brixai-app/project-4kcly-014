@@ -3,24 +3,24 @@
 @tailwind utilities;
 
 :root {
-  --color-bg: #F4F1DE;
-  --color-bg-rgb: 244, 241, 222;
-  --color-surface: #FFFDF2;
-  --color-surface-rgb: 255, 253, 242;
-  --color-surface-hover: #E9E4CB;
-  --color-surface-hover-rgb: 233, 228, 203;
-  --color-border: #C9C3A8;
-  --color-border-rgb: 201, 195, 168;
-  --color-text-primary: #1D3557;
-  --color-text-primary-rgb: 29, 53, 87;
-  --color-text-muted: #596579;
-  --color-text-muted-rgb: 89, 101, 121;
+  --color-bg: #FFFFFF;
+  --color-bg-rgb: 255, 255, 255;
+  --color-surface: #F9FAFB;
+  --color-surface-rgb: 249, 250, 251;
+  --color-surface-hover: #F1F5F4;
+  --color-surface-hover-rgb: 241, 245, 244;
+  --color-border: #D7DFDD;
+  --color-border-rgb: 215, 223, 221;
+  --color-text-primary: #142D35;
+  --color-text-primary-rgb: 20, 45, 53;
+  --color-text-muted: #5E6E73;
+  --color-text-muted-rgb: 94, 110, 115;
   --color-accent: #E63946;
   --color-accent-rgb: 230, 57, 70;
-  --color-accent-hover: #C92535;
-  --color-accent-hover-rgb: 201, 37, 53;
+  --color-accent-hover: #C92E3A;
+  --color-accent-hover-rgb: 201, 46, 58;
   --color-accent-text: #000000;
-  --radius-theme: 24px;
+  --radius-theme: 6px;
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Roboto', sans-serif;
 }

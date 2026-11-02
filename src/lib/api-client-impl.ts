@@ -1,265 +1,223 @@
-export type BrixApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
-export interface BrixApiClientOptions {
+export type BrixApiClientOptions = {
   baseUrl?: string;
-  headers?: HeadersInit;
-  credentials?: RequestCredentials;
-  timeoutMs?: number;
+  getAuthToken?: () => string | Promise<string | null | undefined>;
   onUnauthorized?: () => void;
-  onError?: (error: BrixApiError) => void;
+  defaultHeaders?: HeadersInit;
   fetchImpl?: typeof fetch;
-}
+};
 
-export interface BrixApiRequestOptions extends Omit<RequestInit, 'body' | 'headers' | 'method'> {
-  headers?: HeadersInit;
-  params?: Record<string, string | number | boolean | null | undefined>;
+export type BrixApiRequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
-  timeoutMs?: number;
-  parseAs?: 'json' | 'text' | 'blob' | 'arrayBuffer' | 'response';
-}
-
-export interface BrixApiErrorDetails {
-  status?: number;
-  statusText?: string;
-  url?: string;
-  method?: string;
-  code?: string;
-  details?: unknown;
-  cause?: unknown;
-}
+  query?: Record<string, string | number | boolean | null | undefined>;
+  headers?: HeadersInit;
+  responseType?: "json" | "text" | "blob" | "arrayBuffer" | "response";
+  skipAuth?: boolean;
+};
 
 export class BrixApiError extends Error {
-  status?: number;
-  statusText?: string;
-  url?: string;
-  method?: string;
-  code?: string;
-  details?: unknown;
-  cause?: unknown;
+  readonly status: number;
+  readonly statusText: string;
+  readonly url: string;
+  readonly method: string;
+  readonly code?: string;
+  readonly details?: unknown;
+  readonly responseBody?: unknown;
 
-  constructor(message: string, details: BrixApiErrorDetails = {}) {
-    super(message);
-    this.name = 'BrixApiError';
-    this.status = details.status;
-    this.statusText = details.statusText;
-    this.url = details.url;
-    this.method = details.method;
-    this.code = details.code;
-    this.details = details.details;
-    this.cause = details.cause;
-    Object.setPrototypeOf(this, new.target.prototype);
+  constructor(params: {
+    message: string;
+    status: number;
+    statusText: string;
+    url: string;
+    method: string;
+    code?: string;
+    details?: unknown;
+    responseBody?: unknown;
+  }) {
+    super(params.message);
+    this.name = "BrixApiError";
+    this.status = params.status;
+    this.statusText = params.statusText;
+    this.url = params.url;
+    this.method = params.method;
+    this.code = params.code;
+    this.details = params.details;
+    this.responseBody = params.responseBody;
+    Object.setPrototypeOf(this, BrixApiError.prototype);
   }
 }
 
-type JsonPrimitive = string | number | boolean | null;
-type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+type ApiClient = {
+  request<T = unknown>(path: string, options?: BrixApiRequestOptions): Promise<T>;
+  get<T = unknown>(path: string, options?: Omit<BrixApiRequestOptions, "method" | "body">): Promise<T>;
+  post<T = unknown>(path: string, body?: unknown, options?: Omit<BrixApiRequestOptions, "method" | "body">): Promise<T>;
+  put<T = unknown>(path: string, body?: unknown, options?: Omit<BrixApiRequestOptions, "method" | "body">): Promise<T>;
+  patch<T = unknown>(path: string, body?: unknown, options?: Omit<BrixApiRequestOptions, "method" | "body">): Promise<T>;
+  delete<T = unknown>(path: string, options?: Omit<BrixApiRequestOptions, "method" | "body">): Promise<T>;
+  raw(path: string, options?: BrixApiRequestOptions): Promise<Response>;
+};
 
-const DEFAULT_TIMEOUT_MS = 30_000;
+const isAbsoluteUrl = (value: string) => /^https?:\/\//i.test(value);
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return Object.prototype.toString.call(value) === '[object Object]';
-}
+const joinUrl = (baseUrl: string, path: string) => {
+  if (isAbsoluteUrl(path)) return path;
+  const base = baseUrl.replace(/\/+$/, "");
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${base}${normalizedPath}`;
+};
 
-function joinUrl(baseUrl: string, path: string): string {
-  if (!baseUrl) return path;
-  if (/^https?:\/\//i.test(path)) return path;
-  const normalizedBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  return `${normalizedBase}${normalizedPath}`;
-}
-
-function buildUrl(url: string, params?: BrixApiRequestOptions['params']): string {
-  if (!params) return url;
-  const nextUrl = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined || value === null) continue;
-    nextUrl.searchParams.set(key, String(value));
+const buildQueryString = (query?: Record<string, string | number | boolean | null | undefined>) => {
+  if (!query) return "";
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value === null || value === undefined) continue;
+    params.set(key, String(value));
   }
-  return /^https?:\/\//i.test(url) ? nextUrl.toString() : `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
-}
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
+};
 
-function mergeHeaders(...headersList: Array<HeadersInit | undefined>): Headers {
-  const headers = new Headers();
-  for (const headerInit of headersList) {
-    if (!headerInit) continue;
-    const header = new Headers(headerInit);
-    header.forEach((value, key) => headers.set(key, value));
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  if (Object.prototype.toString.call(value) !== "[object Object]") return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+};
+
+const mergeHeaders = (a?: HeadersInit, b?: HeadersInit) => {
+  const headers = new Headers(a);
+  if (b) {
+    const incoming = new Headers(b);
+    incoming.forEach((value, key) => headers.set(key, value));
   }
   return headers;
-}
+};
 
-function isFormData(value: unknown): value is FormData {
-  return typeof FormData !== 'undefined' && value instanceof FormData;
-}
+const safeJsonParse = (text: string) => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+};
 
-function isBlob(value: unknown): value is Blob {
-  return typeof Blob !== 'undefined' && value instanceof Blob;
-}
+const normalizeErrorMessage = (status: number, statusText: string, body: unknown) => {
+  if (typeof body === "string" && body.trim()) return body;
+  if (isPlainObject(body)) {
+    const candidate =
+      (typeof body.message === "string" && body.message) ||
+      (typeof body.error === "string" && body.error) ||
+      (typeof body.detail === "string" && body.detail) ||
+      (typeof body.title === "string" && body.title);
+    if (candidate) return candidate;
+  }
+  return `Request failed with status ${status}${statusText ? ` ${statusText}` : ""}`;
+};
 
-function isArrayBuffer(value: unknown): value is ArrayBuffer {
-  return typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer;
-}
-
-function isURLSearchParams(value: unknown): value is URLSearchParams {
-  return typeof URLSearchParams !== 'undefined' && value instanceof URLSearchParams;
-}
-
-function serializeBody(body: unknown, headers: Headers): BodyInit | undefined {
+const serializeBody = (body: unknown, headers: Headers) => {
   if (body === undefined || body === null) return undefined;
   if (
-    typeof body === 'string' ||
-    isFormData(body) ||
-    isBlob(body) ||
-    isArrayBuffer(body) ||
-    isURLSearchParams(body)
+    typeof body === "string" ||
+    body instanceof Blob ||
+    body instanceof FormData ||
+    body instanceof URLSearchParams ||
+    body instanceof ArrayBuffer ||
+    ArrayBuffer.isView(body)
   ) {
     return body as BodyInit;
   }
-  if (body instanceof ReadableStream) return body as unknown as BodyInit;
-  if (body instanceof URL) return body.toString();
-  if (typeof body === 'object') {
-    if (!headers.has('content-type')) headers.set('content-type', 'application/json');
-    return JSON.stringify(body as JsonValue);
+  if (isPlainObject(body) || Array.isArray(body)) {
+    if (!headers.has("content-type")) headers.set("content-type", "application/json");
+    return JSON.stringify(body);
+  }
+  if (typeof body === "number" || typeof body === "boolean") {
+    if (!headers.has("content-type")) headers.set("content-type", "application/json");
+    return JSON.stringify(body);
   }
   return String(body);
-}
+};
 
-async function parseResponse<T>(response: Response, parseAs: NonNullable<BrixApiRequestOptions['parseAs']>): Promise<T> {
-  if (parseAs === 'response') return response as unknown as T;
-  if (parseAs === 'text') return (await response.text()) as unknown as T;
-  if (parseAs === 'blob') return (await response.blob()) as unknown as T;
-  if (parseAs === 'arrayBuffer') return (await response.arrayBuffer()) as unknown as T;
-  return (await response.json()) as T;
-}
+export function createBrixApiClient(options: BrixApiClientOptions = {}): ApiClient {
+  const baseUrl = options.baseUrl ?? (typeof process !== "undefined" ? process.env.NEXT_PUBLIC_API_BASE_URL ?? "" : "");
+  const fetchImpl = options.fetchImpl ?? fetch.bind(globalThis);
 
-async function safeParseErrorDetails(response: Response): Promise<unknown> {
-  const contentType = response.headers.get('content-type') || '';
-  try {
-    if (contentType.includes('application/json')) return await response.json();
-    return await response.text();
-  } catch {
-    return undefined;
-  }
-}
+  const request = async <T = unknown>(path: string, reqOptions: BrixApiRequestOptions = {}): Promise<T> => {
+    const method = (reqOptions.method ?? "GET").toUpperCase();
+    const url = `${joinUrl(baseUrl, path)}${buildQueryString(reqOptions.query)}`;
 
-function createTimeoutSignal(timeoutMs: number): { signal: AbortSignal; cleanup: () => void } {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(new DOMException('Request timed out', 'TimeoutError')), timeoutMs);
-  return {
-    signal: controller.signal,
-    cleanup: () => clearTimeout(timer),
-  };
-}
+    const headers = mergeHeaders(options.defaultHeaders, reqOptions.headers);
+    if (!headers.has("accept")) headers.set("accept", "application/json");
 
-export function createBrixApiClient(options: BrixApiClientOptions = {}) {
-  const {
-    baseUrl = '',
-    headers: defaultHeaders,
-    credentials = 'same-origin',
-    timeoutMs = DEFAULT_TIMEOUT_MS,
-    onUnauthorized,
-    onError,
-    fetchImpl = fetch,
-  } = options;
+    if (!reqOptions.skipAuth && options.getAuthToken) {
+      const token = await options.getAuthToken();
+      if (token) headers.set("authorization", `Bearer ${token}`);
+    }
 
-  async function request<T = unknown>(
-    method: BrixApiMethod,
-    path: string,
-    requestOptions: BrixApiRequestOptions = {}
-  ): Promise<T> {
-    const url = buildUrl(joinUrl(baseUrl, path), requestOptions.params);
-    const headers = mergeHeaders(defaultHeaders, requestOptions.headers);
-    const body = serializeBody(requestOptions.body, headers);
-    const effectiveTimeout = requestOptions.timeoutMs ?? timeoutMs;
-    const timeout = effectiveTimeout > 0 ? createTimeoutSignal(effectiveTimeout) : null;
+    const body = serializeBody(reqOptions.body, headers);
 
-    const init: RequestInit = {
-      ...requestOptions,
+    const response = await fetchImpl(url, {
+      ...reqOptions,
       method,
       headers,
       body,
-      credentials: requestOptions.credentials ?? credentials,
-      signal: requestOptions.signal ?? timeout?.signal,
-    };
+    });
 
-    try {
-      const response = await fetchImpl(url, init);
-
-      if (!response.ok) {
-        const details = await safeParseErrorDetails(response);
-        const error = new BrixApiError(
-          `Request failed with status ${response.status}${response.statusText ? ` ${response.statusText}` : ''}`,
-          {
-            status: response.status,
-            statusText: response.statusText,
-            url,
-            method,
-            details,
-          }
-        );
-
-        if (response.status === 401) onUnauthorized?.();
-        onError?.(error);
-        throw error;
-      }
-
-      const parseAs = requestOptions.parseAs ?? 'json';
-      if (parseAs === 'response') return response as unknown as T;
-
-      if (response.status === 204 || response.status === 205) {
-        return undefined as T;
-      }
-
-      return await parseResponse<T>(response, parseAs);
-    } catch (cause) {
-      if (cause instanceof BrixApiError) throw cause;
-
-      const error =
-        cause instanceof DOMException && cause.name === 'AbortError'
-          ? new BrixApiError('Request was aborted', { url, method, code: 'ABORTED', cause })
-          : new BrixApiError(cause instanceof Error ? cause.message : 'Network request failed', {
-              url,
-              method,
-              code: 'NETWORK_ERROR',
-              cause,
-            });
-
-      onError?.(error);
-      throw error;
-    } finally {
-      timeout?.cleanup();
+    if (response.status === 401 && options.onUnauthorized) {
+      options.onUnauthorized();
     }
-  }
+
+    if (reqOptions.responseType === "response") {
+      if (!response.ok) {
+        const text = await response.text().catch(() => "");
+        throw new BrixApiError({
+          message: normalizeErrorMessage(response.status, response.statusText, text),
+          status: response.status,
+          statusText: response.statusText,
+          url,
+          method,
+          responseBody: text,
+        });
+      }
+      return response as unknown as T;
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    const isJson = contentType.includes("application/json") || contentType.includes("+json");
+
+    let parsed: unknown = undefined;
+    if (reqOptions.responseType === "blob") {
+      parsed = await response.blob();
+    } else if (reqOptions.responseType === "arrayBuffer") {
+      parsed = await response.arrayBuffer();
+    } else if (reqOptions.responseType === "text") {
+      parsed = await response.text();
+    } else if (isJson) {
+      const text = await response.text();
+      parsed = text ? safeJsonParse(text) : null;
+    } else {
+      parsed = await response.text();
+    }
+
+    if (!response.ok) {
+      throw new BrixApiError({
+        message: normalizeErrorMessage(response.status, response.statusText, parsed),
+        status: response.status,
+        statusText: response.statusText,
+        url,
+        method,
+        responseBody: parsed,
+        details: isPlainObject(parsed) ? parsed : undefined,
+      });
+    }
+
+    return parsed as T;
+  };
 
   return {
     request,
-    get<T = unknown>(path: string, requestOptions?: BrixApiRequestOptions) {
-      return request<T>('GET', path, requestOptions);
-    },
-    post<T = unknown>(path: string, body?: unknown, requestOptions: BrixApiRequestOptions = {}) {
-      return request<T>('POST', path, { ...requestOptions, body });
-    },
-    put<T = unknown>(path: string, body?: unknown, requestOptions: BrixApiRequestOptions = {}) {
-      return request<T>('PUT', path, { ...requestOptions, body });
-    },
-    patch<T = unknown>(path: string, body?: unknown, requestOptions: BrixApiRequestOptions = {}) {
-      return request<T>('PATCH', path, { ...requestOptions, body });
-    },
-    delete<T = unknown>(path: string, requestOptions?: BrixApiRequestOptions) {
-      return request<T>('DELETE', path, requestOptions);
-    },
-    withDefaults(nextOptions: BrixApiClientOptions) {
-      return createBrixApiClient({
-        baseUrl: nextOptions.baseUrl ?? baseUrl,
-        headers: mergeHeaders(defaultHeaders, nextOptions.headers),
-        credentials: nextOptions.credentials ?? credentials,
-        timeoutMs: nextOptions.timeoutMs ?? timeoutMs,
-        onUnauthorized: nextOptions.onUnauthorized ?? onUnauthorized,
-        onError: nextOptions.onError ?? onError,
-        fetchImpl: nextOptions.fetchImpl ?? fetchImpl,
-      });
-    },
+    raw: (path, options) => request<Response>(path, { ...options, responseType: "response" }),
+    get: (path, options) => request(path, { ...options, method: "GET" }),
+    post: (path, body, options) => request(path, { ...options, method: "POST", body }),
+    put: (path, body, options) => request(path, { ...options, method: "PUT", body }),
+    patch: (path, body, options) => request(path, { ...options, method: "PATCH", body }),
+    delete: (path, options) => request(path, { ...options, method: "DELETE" }),
   };
 }
-
-export type BrixApiClient = ReturnType<typeof createBrixApiClient>;

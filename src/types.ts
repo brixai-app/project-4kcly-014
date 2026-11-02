@@ -1,70 +1,78 @@
-export type ProductCategory =
-  | 'String'
-  | 'Percussion'
-  | 'Wind'
-  | 'Keyboard'
-  | 'Electronic'
-  | 'Accessories';
+export type InstrumentCategory = 'String' | 'Percussion' | 'Wind' | 'Keyboard' | 'Electronic' | 'Folk';
 
-export type Product = {
+export interface Instrument {
   id: string;
+  slug: string;
   name: string;
-  category: ProductCategory | string;
-  price: number;
-  image: string;
-  description?: string;
+  category: InstrumentCategory | string;
   origin?: string;
+  price?: number;
+  description: string;
+  story?: string;
+  image: string;
+  gallery?: string[];
   featured?: boolean;
-  slug?: string;
-  accent?: 'red' | 'green' | 'blue';
-};
+  audioUrl?: string;
+  tuning?: string;
+  materials?: string[];
+  dimensions?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
-export type ContactMessage = {
-  id: string;
+export interface ContactMessage {
   name: string;
   email: string;
   subject: string;
   message: string;
-  createdAt: string;
-};
+  phone?: string;
+  preferredInstrument?: string;
+}
 
-export type ContactFormValues = {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-};
+export interface ContactValidationResult {
+  valid: boolean;
+  errors: Partial<Record<keyof ContactMessage, string>>;
+}
 
-export type CatalogFilter = {
-  query: string;
-  category: string;
-  sortBy: 'featured' | 'price-asc' | 'price-desc' | 'name-asc';
-};
+export interface ApiPayload<T = unknown> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
 
-export type SharedSectionProps = {
+export interface BaseComponentProps {
   className?: string;
+}
+
+export interface SectionProps extends BaseComponentProps {
   title?: string;
   subtitle?: string;
-};
+}
 
-export type ProductCardProps = {
-  product?: Product | null;
-  onSelect?: (product: Product) => void;
-  onQuickAction?: (product: Product) => void;
-  className?: string;
-};
-
-export type ModalProps = {
+export interface DrawerProps extends BaseComponentProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  className?: string;
-};
+}
 
-export type CatalogControlsProps = {
-  filters?: CatalogFilter;
-  categories?: string[];
-  onChange?: (filters: CatalogFilter) => void;
-  className?: string;
-};
+export interface InstrumentCardProps extends BaseComponentProps {
+  instrument?: Instrument;
+  onSelect?: (instrument: Instrument) => void;
+  onQuickListen?: (instrument: Instrument) => void;
+}
 
-export default {} as const;
+export interface ContactFormProps extends BaseComponentProps {
+  initialValues?: Partial<ContactMessage>;
+  onSubmit?: (message: ContactMessage) => Promise<void> | void;
+}
+
+export interface HeaderProps extends BaseComponentProps {
+  onOpenContact?: () => void;
+  onOpenAudio?: () => void;
+}
+
+export interface FooterProps extends BaseComponentProps {
+  year?: number;
+}
+
+export default Instrument;

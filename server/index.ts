@@ -1,119 +1,101 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { db, initDb, inspectTables, getTableData } from './db';
-import type { ContactFormValues, Product } from '../src/types';
+import db, { getInstrumentBySlug, getInstruments, getTableData, inspectTables, insertContactMessage } from './db';
+import type { ContactMessage, ContactValidationResult, Instrument, ApiPayload } from '../src/types';
 
 const index = new Hono();
 
-index.use('/api/*', cors({ origin: '*', allowMethods: ['GET', 'POST', 'OPTIONS'], allowHeaders: ['Content-Type'] }));
+index.use(
+  '/api/*',
+  cors({
+    origin: '*',
+    allowMethods: ['GET', 'POST', 'OPTIONS'],
+    allowHeaders: ['Content-Type'],
+  })
+);
 
-const jsonError = (message: string, status = 400) => index.json({ ok: false, error: message }, status);
+const jsonError = (message: string, status = 400) =>
+  index.json<ApiPayload>({ success: false, error: message, message }, status);
 
-const isString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
-const clean = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
-const toNumber = (value: unknown) => {
-  const n = typeof value === 'number' ? value : Number(value);
-  return Number.isFinite(n) ? n : NaN;
+const isString = (value: unknown) => typeof value === 'string' && value.trim().length > 0;
+
+const validateContact = (input: Partial<ContactMessage>): ContactValidationResult => {
+  const errors: ContactValidationResult['errors'] = {};
+  if (!isString(input?.name)) errors.name = 'Name is required.';
+  if (!isString(input?.email) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email ?? '')) errors.email = 'Valid email is required.';
+  if (!isString(input?.subject)) errors.subject = 'Subject is required.';
+  if (!isString(input?.message)) errors.message = 'Message is required.';
+  if (input?.phone != null && typeof input.phone !== 'string') errors.phone = 'Phone must be a string.';
+  if (input?.preferredInstrument != null && typeof input.preferredInstrument !== 'string') errors.preferredInstrument = 'Preferred instrument must be a string.';
+  return { valid: Object.keys(errors).length === 0, errors };
 };
 
-const normalizeProduct = (row: Record<string, unknown>): Product => ({
-  id: String(row?.id ?? ''),
-  name: String(row?.name ?? ''),
-  category: String(row?.category ?? ''),
-  price: toNumber(row?.price ?? 0),
-  image: String(row?.image ?? ''),
-  description: row?.description ? String(row.description) : undefined,
-  origin: row?.origin ? String(row.origin) : undefined,
-  featured: Boolean(row?.featured ?? false),
-  slug: row?.slug ? String(row.slug) : undefined,
-  accent: row?.accent === 'red' || row?.accent === 'green' || row?.accent === 'blue' ? row.accent : undefined,
+const parseFeatures = (instrument: Instrument) => ({
+  ...instrument,
+  gallery: Array.isArray(instrument?.gallery) ? instrument.gallery.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : [],
+  materials: Array.isArray(instrument?.materials) ? instrument.materials.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : [],
 });
 
-index.get('/api/health', (c) => c.json({ ok: true, status: 'ready' }));
-
-index.get('/api/products', async (c) => {
+index.get('/api/instruments', async (c) => {
   try {
-    const result = await db.execute(
-      'SELECT id, name, category, price, image, description, origin, featured, slug, accent FROM products ORDER BY featured DESC, name ASC'
-    );
-    const products = (result.rows ?? []).map((row) => normalizeProduct(row as Record<string, unknown>));
-    return c.json({ ok: true, data: products });
-  } catch (error) {
-    return c.json({ ok: false, error: 'Failed to load products' }, 500);
+    const instruments = await getInstruments();
+    return c.json<ApiPayload<Instrument[]>>({ success: true, data: instruments.map(parseFeatures) });
+  } catch {
+    return c.json<ApiPayload>({ success: false, error: 'Failed to load instruments.' }, 500);
   }
 });
 
-index.get('/api/products/:id', async (c) => {
-  const id = clean(c.req.param('id'));
-  if (!id) return jsonError('Product id is required', 400);
+index.get('/api/instruments/:id', async (c) => {
   try {
-    const result = await db.execute({
-      sql: 'SELECT id, name, category, price, image, description, origin, featured, slug, accent FROM products WHERE id = ? LIMIT 1',
-      args: [id],
-    });
-    const row = result.rows?.[0] as Record<string, unknown> | undefined;
-    if (!row) return jsonError('Product not found', 404);
-    return c.json({ ok: true, data: normalizeProduct(row) });
+    const id = c.req.param('id') ?? '';
+    const instruments = await getInstruments();
+    const byId = instruments.find((item) => item?.id === id || item?.slug === id) ?? null;
+    const instrument = byId ?? (await getInstrumentBySlug(id));
+    if (!instrument) return jsonError('Instrument not found.', 404);
+    return c.json<ApiPayload<Instrument>>({ success: true, data: parseFeatures(instrument) });
   } catch {
-    return c.json({ ok: false, error: 'Failed to load product' }, 500);
+    return c.json<ApiPayload>({ success: false, error: 'Failed to load instrument.' }, 500);
   }
 });
 
 index.post('/api/contact', async (c) => {
   try {
-    const body = (await c.req.json().catch(() => null)) as Partial<ContactFormValues> | null;
-    const name = clean(body?.name);
-    const email = clean(body?.email);
-    const subject = clean(body?.subject);
-    const message = clean(body?.message);
-
-    if (!name || !email || !subject || !message) return jsonError('All contact fields are required', 400);
-    if (!email.includes('@')) return jsonError('A valid email address is required', 400);
-
-    const id = crypto.randomUUID();
-    const createdAt = new Date().toISOString();
-
-    await db.execute({
-      sql: 'INSERT INTO contact_messages (id, name, email, subject, message, createdAt) VALUES (?, ?, ?, ?, ?, ?)',
-      args: [id, name, email, subject, message, createdAt],
+    const body = (await c.req.json().catch(() => null)) as Partial<ContactMessage> | null;
+    if (!body) return jsonError('Invalid request body.');
+    const validation = validateContact(body);
+    if (!validation.valid) return c.json<ApiPayload<{ errors: ContactValidationResult['errors'] }>>({ success: false, error: 'Validation failed.', data: { errors: validation.errors } }, 422);
+    const result = await insertContactMessage({
+      name: body.name?.trim() ?? '',
+      email: body.email?.trim() ?? '',
+      subject: body.subject?.trim() ?? '',
+      message: body.message?.trim() ?? '',
+      phone: body.phone?.trim(),
+      preferredInstrument: body.preferredInstrument?.trim(),
     });
-
-    return c.json({ ok: true, data: { id, name, email, subject, message, createdAt } }, 201);
+    return c.json<ApiPayload<{ id: string }>>({ success: true, data: { id: result.id }, message: 'Message received.' }, 201);
   } catch {
-    return c.json({ ok: false, error: 'Failed to save contact message' }, 500);
+    return c.json<ApiPayload>({ success: false, error: 'Failed to submit contact message.' }, 500);
   }
 });
 
-index.get('/api/admin/tables', async (c) => {
+index.get('/api/_admin/db/tables', async (c) => {
   try {
     const tables = await inspectTables();
-    return c.json({ ok: true, data: tables });
+    return c.json<ApiPayload<string[]>>({ success: true, data: tables });
   } catch {
-    return c.json({ ok: false, error: 'Failed to inspect tables' }, 500);
+    return c.json<ApiPayload>({ success: false, error: 'Failed to inspect tables.' }, 500);
   }
 });
 
-index.get('/api/admin/tables/:name', async (c) => {
-  const name = clean(c.req.param('name'));
-  if (!name) return jsonError('Table name is required', 400);
+index.get('/api/_admin/db/table/:name', async (c) => {
   try {
-    const data = await getTableData(name);
-    return c.json({ ok: true, data });
+    const name = c.req.param('name') ?? '';
+    if (name !== 'Instruments' && name !== 'ContactMessages') return jsonError('Table not allowed.', 403);
+    const rows = await getTableData(name);
+    return c.json<ApiPayload<typeof rows>>({ success: true, data: rows });
   } catch {
-    return c.json({ ok: false, error: 'Failed to load table data' }, 500);
+    return c.json<ApiPayload>({ success: false, error: 'Failed to load table data.' }, 500);
   }
 });
 
-index.get('/api/admin/init', async (c) => {
-  try {
-    await initDb();
-    return c.json({ ok: true, data: { initialized: true } });
-  } catch {
-    return c.json({ ok: false, error: 'Failed to initialize database' }, 500);
-  }
-});
-
-index.notFound((c) => c.json({ ok: false, error: 'Route not found' }, 404));
-
-export { index };
 export default index;
