@@ -1,90 +1,105 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { ArrowUpRight, Mail, MapPin, Phone, Instagram, Youtube, Linkedin, Github } from 'lucide-react';
-import { cn } from "@/lib/utils";
-import { navigation } from "@/data/mockData";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Mail, MapPin, Phone, Instagram, Youtube, Linkedin, Github } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-type FooterProps = { className?: string };
+export type FooterProps = {
+  className?: string;
+  onContactClick?: () => void;
+};
 
-const socialLinks = [
-  { label: "Instagram", href: "https://instagram.com", icon: Instagram },
-  { label: "YouTube", href: "https://youtube.com", icon: Youtube },
-  { label: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
-  { label: "GitHub", href: "https://github.com", icon: Github },
-];
+export function Footer({ className = '', onContactClick = () => undefined }: FooterProps) {
+  const year = new Date().getFullYear();
+  const navLinks = [
+    { to: '/', label: 'Home' },
+    { to: '/catalog', label: 'Catalog' },
+    { to: '/about', label: 'About' },
+    { to: '/contact', label: 'Contact' },
+  ];
 
-export function Footer({ className = "" }: FooterProps) {
-  const routes = navigation?.slice?.(0, 4) ?? [];
-  const categories = ["Strings", "Percussion", "Wind", "Keyboard"];
+  const socialLinks = [
+    { href: 'https://instagram.com', label: 'Instagram', icon: Instagram },
+    { href: 'https://youtube.com', label: 'YouTube', icon: Youtube },
+    { href: 'https://linkedin.com', label: 'LinkedIn', icon: Linkedin },
+    { href: 'https://github.com', label: 'GitHub', icon: Github },
+  ];
+
   return (
-    <footer className={cn("border-t border-[#CAD5D7] bg-[#F7F8F6] text-black", className)}>
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:grid-cols-12 md:px-8">
-        <div className="md:col-span-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#E63946]">SurSangeet</p>
-          <h2 className="mt-4 max-w-md font-[Outfit,sans-serif] text-3xl font-light uppercase tracking-tight sm:text-4xl">
-            A vivid instrument journal for modern listeners and collectors.
-          </h2>
-          <p className="mt-4 max-w-lg text-sm leading-6 text-[#526166]">
-            SurSangeet curates expressive instruments through editorial imagery, tactile detail, and a responsive browsing experience built for discovery.
-          </p>
-        </div>
+    <footer className={cn('border-t border-[#C9C3A8] bg-[#FFFDF2] text-[#1D3557]', className)}>
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[1.4fr_0.8fr_0.8fr]">
+          <div className="space-y-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#596579]">SurSangeet</p>
+            <h2 className="max-w-xl text-3xl font-light tracking-tight sm:text-4xl">
+              A tactile instrument showcase shaped by rhythm, craft, and discovery.
+            </h2>
+            <p className="max-w-xl text-sm leading-6 text-[#596579]">
+              Explore curated instruments through editorial imagery, refined filtering, and a collection-first experience designed to feel warm, precise, and alive.
+            </p>
+            <button
+              type="button"
+              onClick={() => onContactClick?.()}
+              className="inline-flex items-center gap-2 border border-[#1D3557] bg-[#E63946] px-4 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-black transition-colors hover:bg-[#C92535]"
+            >
+              Send inquiry
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
 
-        <div className="grid gap-8 sm:grid-cols-2 md:col-span-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#526166]">Navigate</p>
-            <div className="mt-4 flex flex-col gap-2.5">
-              {routes.map((item) => (
-                <Link key={item?.label ?? item?.path} to={item?.path ?? "/"} className="group inline-flex items-center justify-between gap-3 text-sm font-semibold uppercase tracking-widest text-black transition-colors hover:text-[#E63946]">
-                  <span className="min-w-0 truncate">{item?.label ?? ""}</span>
-                  <ArrowUpRight className="h-4 w-4 shrink-0" />
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#596579]">Navigate</p>
+            <nav className="flex flex-col gap-2.5">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="min-w-0 text-sm font-medium text-[#1D3557] transition-colors hover:text-[#E63946]"
+                >
+                  {link.label}
                 </Link>
               ))}
-            </div>
+            </nav>
           </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#526166]">Families</p>
-            <div className="mt-4 flex flex-col gap-2.5">
-              {categories.map((category) => (
-                <Link key={category} to="/catalog" className="text-sm font-semibold uppercase tracking-widest text-black transition-colors hover:text-[#E63946]">
-                  <span className="min-w-0 truncate">{category}</span>
-                </Link>
-              ))}
+
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#596579]">Contact</p>
+            <div className="flex flex-col gap-2.5 text-sm text-[#596579]">
+              <div className="flex items-start gap-3">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E63946]" />
+                <span className="min-w-0 break-words">Mumbai, India</span>
+              </div>
+              <a href="mailto:hello@sursangeet.com" className="flex items-start gap-3 transition-colors hover:text-[#E63946]">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#E63946]" />
+                <span className="min-w-0 break-words">hello@sursangeet.com</span>
+              </a>
+              <a href="tel:+910000000000" className="flex items-start gap-3 transition-colors hover:text-[#E63946]">
+                <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#E63946]" />
+                <span className="min-w-0 break-words">+91 00000 00000</span>
+              </a>
+            </div>
+            <div className="flex flex-wrap gap-3 pt-2">
+              {socialLinks.map((social) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={social.label}
+                    className="inline-flex h-10 w-10 items-center justify-center border border-[#C9C3A8] text-[#1D3557] transition-colors hover:border-[#E63946] hover:text-[#E63946]"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        <div className="md:col-span-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#526166]">Contact</p>
-          <div className="mt-4 flex flex-col gap-3 text-sm text-[#526166]">
-            <a href="mailto:hello@sursangeet.com" className="inline-flex items-center gap-3 transition-colors hover:text-black">
-              <Mail className="h-4 w-4 shrink-0 text-[#E63946]" />
-              <span className="min-w-0 truncate">hello@sursangeet.com</span>
-            </a>
-            <a href="tel:+911234567890" className="inline-flex items-center gap-3 transition-colors hover:text-black">
-              <Phone className="h-4 w-4 shrink-0 text-[#E63946]" />
-              <span className="min-w-0 truncate">+91 12345 67890</span>
-            </a>
-            <div className="inline-flex items-start gap-3">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E63946]" />
-              <span className="min-w-0 break-words">Studio 12, Resonance House, New Delhi, India</span>
-            </div>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            {socialLinks.map((social) => {
-              const Icon = social.icon;
-              return (
-                <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={social.label} className="inline-flex h-10 w-10 items-center justify-center border border-[#CAD5D7] bg-white text-black transition-transform duration-300 hover:-translate-y-0.5 hover:border-[#E63946] hover:text-[#E63946]">
-                  <Icon className="h-4 w-4" />
-                </a>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      <div className="border-t border-[#CAD5D7] px-5 py-4 text-xs uppercase tracking-[0.3em] text-[#526166] md:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <span>© {new Date().getFullYear()} SurSangeet</span>
-          <span>Editorial instrument showcase</span>
+        <div className="mt-10 flex flex-col gap-3 border-t border-[#C9C3A8] pt-6 text-xs uppercase tracking-[0.28em] text-[#596579] sm:flex-row sm:items-center sm:justify-between">
+          <p>© {year} SurSangeet</p>
+          <p>Editorial instrument discovery</p>
         </div>
       </div>
     </footer>

@@ -1,187 +1,162 @@
-import { useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import * as Dialog from "@radix-ui/react-dialog";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Menu, X, ChevronDown, ShoppingBag, Search, Home, Store, Users, Mail } from 'lucide-react';
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { categories, navigation } from "@/data/mockData";
-import type { InstrumentCategory } from "@/types";
+import React, { useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X, Search, ShoppingBag, ChevronDown, Home, BookOpen, Mail, User } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-type HeaderProps = { className?: string };
-
-const categoryIcons: Record<InstrumentCategory, typeof Store> = {
-  Strings: Store,
-  Percussion: Users,
-  Wind: Search,
-  Keyboard: Home,
+export type HeaderProps = {
+  className?: string;
+  onContactClick?: () => void;
 };
 
-export function Header({ className = "" }: HeaderProps) {
+type NavItem = {
+  label: string;
+  to: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+export function Header({ className = '', onContactClick = () => undefined }: HeaderProps) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navItems = useMemo(
-    () => navigation ?? [
-      { label: "Home", href: "/" },
-      { label: "Catalog", href: "/catalog" },
-      { label: "About", href: "/about" },
-      { label: "Contact", href: "/contact" },
+  const navItems = useMemo<NavItem[]>(
+    () => [
+      { label: 'Home', to: '/', icon: Home },
+      { label: 'Catalog', to: '/catalog', icon: BookOpen },
+      { label: 'About', to: '/about', icon: User },
+      { label: 'Contact', to: '/contact', icon: Mail },
     ],
     []
   );
 
-  const isActive = (href: string) => (href === "/" ? location.pathname === "/" : location.pathname.startsWith(href));
+  const isActive = (to: string) =>
+    to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
+
+  const closeMobile = () => setMobileOpen(false);
 
   return (
-    <header className={cn("sticky top-0 z-50 border-b border-[#CAD5D7] bg-white/90 backdrop-blur-xl", className)}>
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <Link to="/" className="min-w-0 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#E63946] text-sm font-semibold text-black shadow-[0_10px_30px_rgba(230,57,70,0.22)]">
-              SS
-            </div>
-            <div className="min-w-0">
-              <div className="truncate font-['Outfit'] text-lg font-semibold uppercase tracking-[0.22em] text-black">
-                SurSangeet
-              </div>
-              <div className="truncate text-[11px] uppercase tracking-[0.28em] text-[#526166]">
-                Musical instrument showcase
-              </div>
-            </div>
-          </div>
+    <header className={cn('sticky top-0 z-50 border-b border-[#C9C3A8] bg-[#F4F1DE]/95 backdrop-blur-xl', className)}>
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <Link to="/" onClick={closeMobile} className="group flex min-w-0 items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-[24px] border border-[#C9C3A8] bg-[#FFFDF2] text-[#E63946] shadow-sm">
+            <span className="text-lg font-semibold tracking-tight">S</span>
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-['Outfit'] text-lg font-semibold tracking-tight text-[#1D3557]">
+              SurSangeet
+            </span>
+            <span className="block truncate text-[11px] font-semibold uppercase tracking-[0.28em] text-[#596579]">
+              Instrument showcase
+            </span>
+          </span>
         </Link>
 
-        <nav className="hidden items-center gap-2 lg:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                "rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] transition-colors",
-                isActive(item.href) ? "bg-[#F7F8F6] text-black" : "text-[#526166] hover:bg-[#F7F8F6] hover:text-black"
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <button className="inline-flex items-center gap-1 rounded-md border border-[#CAD5D7] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-black transition-colors hover:bg-[#F7F8F6]">
-                Categories <ChevronDown className="h-4 w-4" />
-              </button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content
-                align="end"
-                sideOffset={10}
-                className="z-50 min-w-56 rounded-md border border-[#CAD5D7] bg-white p-2 shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+        <nav className="hidden items-center gap-1 lg:flex">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.to);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={cn(
+                  'relative flex items-center gap-2 rounded-md px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] transition-colors',
+                  active ? 'text-[#1D3557]' : 'text-[#596579] hover:text-[#1D3557]'
+                )}
               >
-                {categories.map((category) => {
-                  const Icon = categoryIcons[category];
-                  return (
-                    <DropdownMenu.Item key={category} asChild>
-                      <Link
-                        to="/catalog"
-                        className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-black outline-none transition-colors hover:bg-[#F7F8F6] focus:bg-[#F7F8F6]"
-                      >
-                        <Icon className="h-4 w-4 text-[#E63946]" />
-                        <span className="min-w-0 truncate">{category}</span>
-                      </Link>
-                    </DropdownMenu.Item>
-                  );
-                })}
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
+                <Icon className="h-4 w-4" />
+                <span>{item.label}</span>
+                {active ? (
+                  <motion.span
+                    layoutId="header-active"
+                    className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-[#E63946]"
+                    transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                  />
+                ) : null}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            to="/contact"
-            className="hidden rounded-md border border-[#CAD5D7] px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-black transition-colors hover:bg-[#F7F8F6] sm:inline-flex"
-          >
-            <Mail className="mr-2 h-4 w-4" />
-            Contact
-          </Link>
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#CAD5D7] bg-white text-black transition-colors hover:bg-[#F7F8F6] lg:hidden"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open navigation menu"
+            className="hidden items-center gap-2 rounded-md border border-[#C9C3A8] bg-[#FFFDF2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#1D3557] transition hover:border-[#E63946] hover:text-[#E63946] sm:flex"
+            onClick={onContactClick}
           >
-            <Menu className="h-5 w-5" />
+            <Mail className="h-4 w-4" />
+            Contact
+          </button>
+          <button
+            type="button"
+            className="hidden items-center gap-2 rounded-md border border-[#C9C3A8] bg-[#FFFDF2] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#1D3557] transition hover:border-[#E63946] hover:text-[#E63946] md:flex"
+          >
+            <Search className="h-4 w-4" />
+            Search
+          </button>
+          <button
+            type="button"
+            className="flex h-11 w-11 items-center justify-center rounded-md border border-[#C9C3A8] bg-[#FFFDF2] text-[#1D3557] transition hover:border-[#E63946] hover:text-[#E63946] lg:hidden"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label="Toggle navigation"
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
-      <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]" />
-          <Dialog.Content className="fixed right-0 top-0 z-50 h-full w-[min(92vw,22rem)] border-l border-[#CAD5D7] bg-white shadow-[0_30px_80px_rgba(0,0,0,0.18)] focus:outline-none">
-            <div className="flex items-center justify-between border-b border-[#CAD5D7] px-4 py-4">
-              <div className="min-w-0">
-                <div className="truncate font-['Outfit'] text-base font-semibold uppercase tracking-[0.22em] text-black">
-                  SurSangeet
-                </div>
-                <div className="truncate text-[11px] uppercase tracking-[0.28em] text-[#526166]">
-                  Navigation
-                </div>
-              </div>
-              <Dialog.Close asChild>
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#CAD5D7] text-black transition-colors hover:bg-[#F7F8F6]"
-                  aria-label="Close navigation menu"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </Dialog.Close>
+      <AnimatePresence initial={false}>
+        {mobileOpen ? (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.24, ease: 'easeOut' }}
+            className="overflow-hidden border-t border-[#C9C3A8] bg-[#FFFDF2] lg:hidden"
+          >
+            <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 sm:px-6">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.to);
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={closeMobile}
+                    className={cn(
+                      'flex items-center justify-between gap-3 rounded-md border px-4 py-3 text-sm font-semibold transition',
+                      active
+                        ? 'border-[#E63946] bg-[#F4F1DE] text-[#1D3557]'
+                        : 'border-[#C9C3A8] bg-white text-[#1D3557] hover:border-[#E63946]'
+                    )}
+                  >
+                    <span className="flex min-w-0 items-center gap-3">
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span className="min-w-0 truncate">{item.label}</span>
+                    </span>
+                    <ChevronDown className="h-4 w-4 shrink-0" />
+                  </Link>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => {
+                  closeMobile();
+                  onContactClick();
+                }}
+                className="mt-1 flex items-center justify-between gap-3 rounded-md border border-[#E63946] bg-[#E63946] px-4 py-3 text-sm font-semibold text-black transition hover:bg-[#C92535]"
+              >
+                <span className="flex items-center gap-3">
+                  <Mail className="h-4 w-4" />
+                  <span>Contact</span>
+                </span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
             </div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="flex h-[calc(100%-73px)] flex-col gap-3 overflow-y-auto p-4"
-            >
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "rounded-md border px-4 py-3 text-sm font-semibold uppercase tracking-[0.22em] transition-colors",
-                    isActive(item.href)
-                      ? "border-[#E63946] bg-[#F7F8F6] text-black"
-                      : "border-[#CAD5D7] text-[#526166] hover:bg-[#F7F8F6] hover:text-black"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="pt-2">
-                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#526166]">
-                  Categories
-                </div>
-                <div className="flex flex-col gap-2.5">
-                  {categories.map((category) => (
-                    <Link
-                      key={category}
-                      to="/catalog"
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center justify-between rounded-md border border-[#CAD5D7] px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-black transition-colors hover:bg-[#F7F8F6]"
-                    >
-                      <span className="min-w-0 truncate">{category}</span>
-                      <ChevronDown className="h-4 w-4 rotate-[-90deg] text-[#E63946]" />
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </header>
   );
 }

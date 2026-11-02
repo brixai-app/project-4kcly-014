@@ -1,118 +1,165 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Search, Filter, X } from 'lucide-react';
+import { ChevronDown, Filter, RefreshCw, Search, X } from 'lucide-react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { cn } from '@/lib/utils';
-import type { InstrumentCategory } from '@/types';
-
-type CatalogControlsProps = {
-  search: string;
-  category: InstrumentCategory | 'all';
-  resultCount?: number;
-  categories?: InstrumentCategory[];
-  onSearchChange?: (value: string) => void;
-  onCategoryChange?: (value: InstrumentCategory | 'all') => void;
-  onClear?: () => void;
-  className?: string;
-};
-
-const defaultCategories: InstrumentCategory[] = ['string', 'percussion', 'wind', 'keyboard', 'electronic', 'folk'];
+import type { CatalogControlsProps, CatalogFilter } from '@/types';
 
 export function CatalogControls({
-  search = '',
-  category = 'all',
-  resultCount = 0,
-  categories = defaultCategories,
-  onSearchChange = () => undefined,
-  onCategoryChange = () => undefined,
-  onClear = () => undefined,
+  filters = { query: '', category: 'All', sortBy: 'featured' },
+  categories = [],
+  onChange = () => undefined,
   className = '',
 }: CatalogControlsProps) {
-  const [localSearch, setLocalSearch] = useState(search);
-  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const [query, setQuery] = useState(filters?.query ?? '');
+  const [category, setCategory] = useState(filters?.category ?? 'All');
+  const [sortBy, setSortBy] = useState<CatalogFilter['sortBy']>(filters?.sortBy ?? 'featured');
 
   useEffect(() => {
-    setLocalSearch(search ?? '');
-  }, [search]);
+    setQuery(filters?.query ?? '');
+    setCategory(filters?.category ?? 'All');
+    setSortBy(filters?.sortBy ?? 'featured');
+  }, [filters?.query, filters?.category, filters?.sortBy]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setDebouncedSearch(localSearch ?? ''), 300);
-    return () => window.clearTimeout(timer);
-  }, [localSearch]);
+    const id = window.setTimeout(() => {
+      onChange?.({
+        query: query.trim(),
+        category,
+        sortBy,
+      });
+    }, 300);
+    return () => window.clearTimeout(id);
+  }, [query, category, sortBy, onChange]);
 
-  useEffect(() => {
-    if ((debouncedSearch ?? '') !== (search ?? '')) onSearchChange(debouncedSearch);
-  }, [debouncedSearch, search, onSearchChange]);
+  const categoryItems = useMemo(() => ['All', ...categories.filter(Boolean)], [categories]);
 
-  const categoryOptions = useMemo(() => ['all', ...(categories ?? [])], [categories]);
+  const resetFilters = () => {
+    setQuery('');
+    setCategory('All');
+    setSortBy('featured');
+    onChange?.({ query: '', category: 'All', sortBy: 'featured' });
+  };
+
+  const sortLabel =
+    sortBy === 'price-asc'
+      ? 'Price: Low to High'
+      : sortBy === 'price-desc'
+        ? 'Price: High to Low'
+        : sortBy === 'name-asc'
+          ? 'Name: A to Z'
+          : 'Featured';
 
   return (
-    <section className={cn('rounded-[18px] border border-[#D8DEE5] bg-white p-4 shadow-[0_10px_30px_rgba(34,34,34,0.06)]', className)}>
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div className="min-w-0 flex-1">
-          <label htmlFor="catalog-search" className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">
-            <Search className="h-4 w-4 text-[#E63946]" />
-            Search instruments
-          </label>
-          <div className="flex items-center gap-2 rounded-md border border-[#D8DEE5] bg-[#F7F5F2] px-3 py-2">
-            <Search className="h-4 w-4 shrink-0 text-[#5E6670]" />
-            <input
-              id="catalog-search"
-              type="search"
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              placeholder="Search by name, tag, or description"
-              className="min-w-0 flex-1 bg-transparent text-sm text-[#222222] outline-none placeholder:text-[#5E6670]"
-            />
-            {localSearch ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setLocalSearch('');
-                  onSearchChange('');
-                }}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#D8DEE5] text-[#5E6670] transition-colors hover:border-[#E63946] hover:text-[#E63946]"
-                aria-label="Clear search"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            ) : null}
+    <section className={cn('rounded-[24px] border border-[#C9C3A8] bg-[#FFFDF2] p-4 sm:p-5', className)}>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 flex-1">
+            <label className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#596579]">
+              <Search className="h-4 w-4" />
+              Search instruments
+            </label>
+            <div className="flex items-center gap-2 rounded-md border border-[#C9C3A8] bg-white px-3 py-2">
+              <Search className="h-4 w-4 shrink-0 text-[#596579]" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by name, origin, or material"
+                className="min-w-0 flex-1 bg-transparent text-sm text-[#1D3557] outline-none placeholder:text-[#596579]/70"
+                aria-label="Search catalog"
+              />
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[#596579] transition-colors hover:bg-black/5 hover:text-[#1D3557]"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-md border border-[#C9C3A8] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#1D3557] transition-colors hover:bg-[#F4F1DE]"
+                >
+                  <Filter className="h-4 w-4" />
+                  <span className="max-w-[10rem] truncate">{sortLabel}</span>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                  align="end"
+                  sideOffset={8}
+                  className="z-50 min-w-56 rounded-[20px] border border-[#C9C3A8] bg-[#FFFDF2] p-2 shadow-[0_20px_60px_rgba(29,53,87,0.12)]"
+                >
+                  {[
+                    ['featured', 'Featured'],
+                    ['price-asc', 'Price: Low to High'],
+                    ['price-desc', 'Price: High to Low'],
+                    ['name-asc', 'Name: A to Z'],
+                  ].map(([value, label]) => (
+                    <DropdownMenu.Item
+                      key={value}
+                      onSelect={() => setSortBy(value as CatalogFilter['sortBy'])}
+                      className={cn(
+                        'cursor-pointer rounded-md px-3 py-2 text-sm text-[#1D3557] outline-none transition-colors',
+                        'focus:bg-[#F4F1DE] data-[highlighted]:bg-[#F4F1DE]'
+                      )}
+                    >
+                      {label}
+                    </DropdownMenu.Item>
+                  ))}
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-2 rounded-md border border-[#C9C3A8] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#1D3557] transition-colors hover:bg-[#F4F1DE]"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Reset
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col gap-2.5 sm:min-w-[220px]">
-          <label htmlFor="catalog-category" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#5E6670]">
-            <Filter className="h-4 w-4 text-[#E63946]" />
-            Category
-          </label>
-          <select
-            id="catalog-category"
-            value={category}
-            onChange={(e) => onCategoryChange(e.target.value as InstrumentCategory | 'all')}
-            className="min-w-0 rounded-md border border-[#D8DEE5] bg-white px-3 py-2 text-sm text-[#222222] outline-none transition-colors focus:border-[#E63946]"
-          >
-            {categoryOptions.map((option) => (
-              <option key={option} value={option}>
-                {option === 'all' ? 'All categories' : option.charAt(0).toUpperCase() + option.slice(1)}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-col gap-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="min-w-0 truncate text-xs font-semibold uppercase tracking-[0.24em] text-[#596579]">
+              Categories
+            </p>
+            <p className="text-xs text-[#596579]">
+              {category === 'All' ? 'All instruments' : category}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {categoryItems.map((item) => {
+              const active = item === category;
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setCategory(item)}
+                  className={cn(
+                    'min-w-0 max-w-full rounded-md border px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] transition-colors',
+                    active
+                      ? 'border-[#E63946] bg-[#E63946] text-black'
+                      : 'border-[#C9C3A8] bg-white text-[#1D3557] hover:bg-[#F4F1DE]'
+                  )}
+                >
+                  <span className="block max-w-[12rem] truncate">{item}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
-
-      <div className="mt-4 flex flex-col gap-3 border-t border-[#D8DEE5] pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-[#5E6670]">
-          <span className="font-semibold text-[#222222]">{resultCount}</span> results
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setLocalSearch('');
-            onClear();
-          }}
-          className="inline-flex items-center gap-2 self-start rounded-md border border-[#D8DEE5] px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#222222] transition-colors hover:border-[#E63946] hover:text-[#E63946]"
-        >
-          <X className="h-4 w-4" />
-          Clear
-        </button>
       </div>
     </section>
   );

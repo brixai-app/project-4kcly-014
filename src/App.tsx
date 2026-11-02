@@ -1,49 +1,75 @@
-import { Suspense, lazy } from "react";
-import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
-import { motion, useReducedMotion } from "framer-motion";
-import { Toaster } from "sonner";
-import Layout from "@/components/Layout";
+import { useEffect, useMemo, useState } from 'react';
+import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Toaster } from 'sonner';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import ContactFormModal from '@/components/ContactFormModal';
+import Home from '@/pages/Home';
+import AboutPage from '@/pages/AboutPage';
+import CatalogPage from '@/pages/CatalogPage';
+import ContactPage from '@/pages/ContactPage';
+import NotFoundPage from '@/pages/NotFoundPage';
+import type { ContactFormValues } from '@/types';
 
-const HomePage = lazy(() => import("@/pages/HomePage"));
-const CatalogPage = lazy(() => import("@/pages/CatalogPage"));
-const AboutPage = lazy(() => import("@/pages/AboutPage"));
-const ContactPage = lazy(() => import("@/pages/ContactPage"));
-const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
+function AppShell() {
+  const location = useLocation();
+  const [contactOpen, setContactOpen] = useState(false);
+  const [contactSeed, setContactSeed] = useState<Partial<ContactFormValues>>({});
 
-export function App() {
-  const prefersReducedMotion = useReducedMotion();
-  const transition = prefersReducedMotion ? { duration: 0 } : { duration: 0.35, ease: "easeOut" };
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<Partial<ContactFormValues> | undefined>)?.detail ?? {};
+      setContactSeed(detail ?? {});
+      setContactOpen(true);
+    };
+    window.addEventListener('sur-sangeet:open-contact', handler as EventListener);
+    return () => window.removeEventListener('sur-sangeet:open-contact', handler as EventListener);
+  }, []);
+
+  const pageKey = useMemo(() => location.pathname, [location.pathname]);
 
   return (
-    <HashRouter>
-      <Layout>
-        <Suspense
-          fallback={
-            <div className="min-h-[60vh] bg-white px-4 py-16 text-black sm:px-6 lg:px-8">
-              <div className="mx-auto flex max-w-7xl flex-col gap-4">
-                <div className="h-10 w-40 animate-pulse bg-[#F7F8F6]" />
-                <div className="h-64 w-full animate-pulse bg-[#F7F8F6]" />
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="h-40 animate-pulse bg-[#F7F8F6]" />
-                  <div className="h-40 animate-pulse bg-[#F7F8F6]" />
-                </div>
-              </div>
-            </div>
-          }
+    <div className="min-h-screen bg-[#F4F1DE] text-[#1D3557]">
+      <Header onContactClick={() => setContactOpen(true)} />
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={pageKey}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -18 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+          className="min-h-[calc(100vh-0px)]"
         >
-          <motion.div initial={prefersReducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={transition}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/catalog" element={<CatalogPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/product/:id" element={<ProductDetailPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </motion.div>
-        </Suspense>
-      </Layout>
+          <Routes location={location}>
+            <Route path="/" element={<Home />} />
+            <Route path="/catalog" element={<CatalogPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage onContactClick={() => setContactOpen(true)} />} />
+            <Route path="*" element={<NotFoundPage />} />
+            <Route path="/home" element={<Navigate to="/" replace />} />
+          </Routes>
+        </motion.main>
+      </AnimatePresence>
+      <Footer onContactClick={() => setContactOpen(true)} />
+      <ContactFormModal
+        open={contactOpen}
+        onOpenChange={setContactOpen}
+        initialValues={contactSeed}
+        onSubmit={async () => {
+          setContactOpen(false);
+          setContactSeed({});
+        }}
+      />
       <Toaster position="top-right" richColors closeButton />
+    </div>
+  );
+}
+
+export function App() {
+  return (
+    <HashRouter>
+      <AppShell />
     </HashRouter>
   );
 }

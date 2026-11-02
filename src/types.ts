@@ -1,57 +1,70 @@
-export type InstrumentCategory = "Strings" | "Percussion" | "Wind" | "Keyboard";
+export type ProductCategory =
+  | 'String'
+  | 'Percussion'
+  | 'Wind'
+  | 'Keyboard'
+  | 'Electronic'
+  | 'Accessories';
 
-export interface Specification {
-  label: string;
-  value: string;
-}
-
-export interface Instrument {
+export type Product = {
   id: string;
   name: string;
-  category: InstrumentCategory;
+  category: ProductCategory | string;
   price: number;
-  description: string;
   image: string;
-  shortDescription?: string;
-  detailedDescription?: string;
-  specificationsJson?: string;
-  relatedIdsJson?: string;
-}
+  description?: string;
+  origin?: string;
+  featured?: boolean;
+  slug?: string;
+  accent?: 'red' | 'green' | 'blue';
+};
 
-export interface TeamMember {
-  name: string;
-  role: string;
-  bio: string;
-  image: string;
-}
-
-export interface TimelineMilestone {
-  year: string;
-  title: string;
-  description: string;
-}
-
-export interface ContactFormValues {
+export type ContactMessage = {
+  id: string;
   name: string;
   email: string;
   subject: string;
   message: string;
-}
+  createdAt: string;
+};
 
-export interface ContactFormErrors {
-  name?: string;
-  email?: string;
-  subject?: string;
-  message?: string;
-}
+export type ContactFormValues = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+};
 
-export interface ContactSubmissionState {
-  values: ContactFormValues;
-  errors: ContactFormErrors;
-  isSubmitting: boolean;
-  isSubmitted: boolean;
-}
+export type CatalogFilter = {
+  query: string;
+  category: string;
+  sortBy: 'featured' | 'price-asc' | 'price-desc' | 'name-asc';
+};
 
-export type AppRoute = "/" | "/catalog" | "/about" | "/contact" | "/product/:id";
+export type SharedSectionProps = {
+  className?: string;
+  title?: string;
+  subtitle?: string;
+};
 
-export default Instrument;
+export type ProductCardProps = {
+  product?: Product | null;
+  onSelect?: (product: Product) => void;
+  onQuickAction?: (product: Product) => void;
+  className?: string;
+};
+
+export type ModalProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  className?: string;
+};
+
+export type CatalogControlsProps = {
+  filters?: CatalogFilter;
+  categories?: string[];
+  onChange?: (filters: CatalogFilter) => void;
+  className?: string;
+};
+
+export default {} as const;

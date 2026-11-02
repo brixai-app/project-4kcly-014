@@ -1,74 +1,78 @@
-import { motion } from "framer-motion";
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
-import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { motion } from 'framer-motion';
+import { ArrowRight, Mail, MapPin, Phone, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import type { SharedSectionProps } from '@/types';
+import { cn } from '@/lib/utils';
 
-export function ContactPage({ className = "" }: { className?: string }) {
+type ContactPageProps = SharedSectionProps & {
+  onContactClick?: () => void;
+};
+
+export function ContactPage({ className = '', title = 'Let’s shape your next sound', subtitle = 'Reach out for collection guidance, sourcing questions, or a tailored instrument recommendation.', onContactClick = () => undefined }: ContactPageProps) {
+  const points = [
+    { icon: Mail, label: 'Email', value: 'hello@sursangeet.com' },
+    { icon: Phone, label: 'Phone', value: '+91 98765 43210' },
+    { icon: MapPin, label: 'Studio', value: 'Mumbai, India' },
+  ];
+
   return (
-    <main className={cn("bg-white text-black", className)}>
-      <section className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.1fr_0.9fr] md:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="flex flex-col justify-between rounded-[16px] border border-[#CAD5D7] bg-[#F7F8F6] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.06)] md:p-8"
-        >
-          <div className="space-y-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#526166]">Contact SurSangeet</p>
-            <h1 className="max-w-xl font-[Outfit] text-5xl font-light uppercase tracking-tight md:text-7xl">
-              Let the next conversation begin in rhythm.
-            </h1>
-            <p className="max-w-lg text-sm leading-7 text-[#526166] md:text-base">
-              Reach out for instrument guidance, editorial collaborations, or curated recommendations. We respond with clarity, care, and a musician’s ear.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-3 sm:grid-cols-3">
-            {[
-              { icon: Mail, label: "Email", value: "hello@sursangeet.in" },
-              { icon: Phone, label: "Phone", value: "+91 98765 43210" },
-              { icon: MapPin, label: "Studio", value: "Mumbai, India" },
-            ].map((item) => (
-              <div key={item.label} className="rounded-[16px] border border-[#CAD5D7] bg-white p-4">
-                <item.icon className="h-4 w-4 text-[#E63946]" />
-                <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#526166]">{item.label}</p>
-                <p className="mt-2 break-words text-sm font-medium">{item.value}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        <motion.aside
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
-          className="flex flex-col justify-between rounded-[16px] border border-[#CAD5D7] bg-black p-6 text-white shadow-[0_18px_50px_rgba(0,0,0,0.12)] md:p-8"
-        >
-          <div className="space-y-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/60">Editorial response</p>
-            <h2 className="font-[Outfit] text-3xl font-light uppercase tracking-tight md:text-4xl">
-              Send a note, request a recommendation, or start a collaboration.
-            </h2>
-            <p className="max-w-md text-sm leading-7 text-white/70">
-              The contact drawer keeps the experience focused and accessible, with validated outcomes surfaced through subtle motion and clear feedback.
-            </p>
-          </div>
-
-          <div className="mt-10 flex flex-col gap-3">
-            <Link
-              to="/catalog"
-              className="inline-flex items-center justify-between border border-white/20 bg-[#E63946] px-5 py-4 text-xs font-semibold uppercase tracking-[0.3em] text-black transition-colors hover:bg-[#C92532]"
-            >
-              Explore catalog
-              <Send className="h-4 w-4" />
-            </Link>
-            <div className="rounded-[16px] border border-white/10 bg-white/5 p-4 text-sm leading-7 text-white/75">
-              Prefer a direct line? Open the shared contact drawer from the header to send your message without leaving the page.
+    <section className={cn('bg-[#F4F1DE] px-4 py-10 text-[#1D3557] sm:px-6 lg:px-8', className)}>
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="rounded-[24px] border border-[#C9C3A8] bg-[#FFFDF2] p-6 sm:p-8">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#596579]">
+              <Sparkles className="h-4 w-4 text-[#E63946]" />
+              Contact
             </div>
-          </div>
-        </motion.aside>
-      </section>
-    </main>
+            <h1 className="mt-4 max-w-2xl text-4xl font-light tracking-tight sm:text-5xl lg:text-6xl">{title}</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#596579] sm:text-base">{subtitle}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button type="button" onClick={onContactClick} className="inline-flex items-center gap-2 rounded-md bg-[#E63946] px-5 py-3 text-xs font-semibold uppercase tracking-[0.24em] text-black transition hover:bg-[#C92535]">
+                Open inquiry form
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <Link to="/catalog" className="inline-flex items-center gap-2 rounded-md border border-[#C9C3A8] px-5 py-3 text-xs font-semibold uppercase tracking-[0.24em] text-[#1D3557] transition hover:bg-white">
+                Browse catalog
+              </Link>
+            </div>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75, delay: 0.08 }} className="rounded-[24px] border border-[#C9C3A8] bg-[#1D3557] p-6 text-[#FFFDF2] sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#F4F1DE]/80">What to include</p>
+            <div className="mt-5 flex flex-col gap-3">
+              {['Instrument type or mood', 'Budget range', 'Timeline or occasion', 'Any reference artists or sounds'].map((item) => (
+                <div key={item} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-[#FFFDF2]/90">
+                  {item}
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 rounded-2xl bg-[#E63946] p-5 text-black">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em]">Response promise</p>
+              <p className="mt-2 text-sm leading-6">We reply with thoughtful guidance, availability notes, and a clear next step within one business day.</p>
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          {points.map((point) => {
+            const Icon = point.icon;
+            return (
+              <motion.div key={point.label} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="rounded-[24px] border border-[#C9C3A8] bg-[#FFFDF2] p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F4F1DE] text-[#E63946]">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#596579]">{point.label}</p>
+                    <p className="mt-1 break-words text-sm font-medium text-[#1D3557]">{point.value}</p>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 
